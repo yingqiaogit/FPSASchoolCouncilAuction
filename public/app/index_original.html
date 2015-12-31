@@ -1,0 +1,218 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!doctype html>
+<html lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="FPSA School Council Auction" />
+    <title>FPSA School Council Auction</title>
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <!-- Chrome for Android theme color -->
+    <meta name="theme-color" content="#303F9F">
+
+    <!-- Web Application Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Tile color for Win8 -->
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="FPSA School Council Auction">
+    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Disaster Information Search">
+    <link rel="apple-touch-icon" href="./images/touch/apple-touch-icon.png">
+
+    <!-- Tile icon for Win8 (144x144) -->
+    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+
+    <!-- build:css styles/main.css -->
+    <link rel="stylesheet" href="../app/styles/main.css">
+    <!-- endbuild-->
+
+    <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
+    <script src="../app/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <!-- endbuild -->
+
+    <!-- will be replaced with elements/elements.vulcanized.html -->
+    <link rel="import" href="../app/elements/elements.html">
+    <!-- endreplace-->
+</head>
+
+<body unresolved class="fullbleed layout vertical">
+    <span id="browser-sync-binding"></span>
+    <template is="dom-bind" id="app">
+
+        <paper-scroll-header-panel class="flex" condenses>
+
+
+            <!-- Main Toolbar -->
+            <paper-toolbar class="tall" id="mainToolbar">
+
+                <span class="flex"></span>
+
+                <!-- Application name -->
+                <div class="middle paper-font-display2 app-name">
+                    FPSA School Council Auction
+                </div>
+
+                <!-- Application sub title -->
+                <div class="middle">
+                    &nbsp Year of 2015 - 2016
+                </div>
+
+                <!-- Toolbar icons -->
+
+                <paper-tabs id="categoryTab" selected="0" class="bottom self-end" style=" margin-bottom:0;color:white;font-size:14px;">
+                    <paper-tab>HOME</paper-tab>
+                    <paper-tab>ADMIN</paper-tab>
+                </paper-tabs>
+
+                <!--                <div class="bottom flex self-start"></div>-->
+            </paper-toolbar>
+
+
+            <!-- Main Content -->
+            <div class="content" id="mainContent">
+                <iron-pages attr-for-selected="data-route" selected="home">
+
+                    <section data-route="home" animateInitialSelection="true" id="home">
+                        <div class="subject"> Welcome! You may click an item in the following list to make your bid or add your item. </div>
+
+                        <paper-material elevation="1">
+                            <paper-button id="newItemPageButton">
+                                <iron-image style="width:400px; height:400px;" sizing="contain"
+                                            src="../images/newapp-icon.png"></iron-image>
+                                <p> Add new items </p>
+                            </paper-button>
+
+                            <paper-button>
+                                <iron-image style="width:400px; height:400px;" sizing="contain"
+                                        src="http://lorempixel.com/600/400"></iron-image>
+                                <p> Art classes </p>
+                            </paper-button>
+
+
+                        </paper-material>
+
+                    </section>
+
+                    <section data-route="additempage" animateInitialSelection="true" id="additempage">
+                        <div class="subject"> Please name your item and describe it as well </div>
+
+                        <paper-material elevation="1">
+                            <p class="paper-font-body2">You may enter the title of the item. The title will be displayed in the home page.</p>
+                            <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}"></paper-input>
+                        </paper-material>
+
+                        <paper-material elevation="1">
+                            <p class="paper-font-body2">You may enter the description of the item. </p>
+                            <paper-textarea id="descriptionInput" value="{{newItem.description}}"></paper-textarea>
+                        </paper-material>
+
+                        <paper-fab id="addItemButton" class="nextButton" icon="file-upload"></paper-fab>
+                        <p class="nextButton">Submit &nbsp </p>
+
+                        <paper-toast id="toaster" text="{{toaster}}"></paper-toast>
+
+                    </section>
+
+                    <section data-route="selecteditem" animateInitialSelection="true" id="selecteditem">
+                        <div class="subject">Your Item</div>
+                        <paper-material elevation="1">
+                            <div class="subject">{{title}}</div>
+                            <div calss="ratinginfo">{{description}}</div>
+                        </paper-material>
+
+                        <div class="subject">Search Results</div>
+                        <paper-material elevation="1">
+                            <ul>
+                                <template is="dom-repeat" items="{{list}}">
+                                    <li><a href="{{item.url}}" target="_blank">{{item.label}}</a></li>
+                                    <br>
+                                </template>
+                            </ul>
+
+                        </paper-material>
+
+                        <paper-material>
+                            <v-grid selection-mode="disabled">
+                                <table>
+                                    <!-- Define the columns -->
+                                    <col name="rank" header-text="Rank" width="10">
+                                    <col name="label" header-text="Title">
+                                    <col name="country" header-text="Location">
+                                    <col name="geoobj" header-text="Geological Objects">
+                                    <col name="total" header-text="Total">
+                                </table>
+                            </v-grid>
+                        </paper-material>
+                    </section>
+
+                    <section data-route="admin" id="admin">
+
+                        <paper-dropdown-menu label="Select an item">
+                            <paper-menu id="titleselector" class="dropdown-content" selected="0">
+                                <template is="dom-repeat" items="{{searchedItems}}">
+                                    <paper-item>{{item.title}}</paper-item>
+                                </template>
+                            </paper-menu>
+                        </paper-dropdown-menu>
+
+                        <paper-material elevation="1">
+                            <div class="subject">{{selectedTitle}}</div>
+                            <div calss="ratinginfo">{{selectedDescription}}</div>
+                        </paper-material>
+
+                        <paper-material>
+                            <v-grid>
+                                <table>
+                                    <!-- Define the columns -->
+                                    <col name="rank" header-text="Rank" width="10">
+                                       <col name="label" header-text="Title">
+                                            <col name="country" header-text="Location">
+                                                <col name="geoobj" header-text="Geological Objects">
+                                                    <col name="total" header-text="Total">
+                                </table>
+                            </v-grid>
+                        </paper-material>
+                    </section>
+
+                    <iron-ajax method="POST" id="addItemCall" url="/items/submit" contentType="application/json" handle-as="json" debounce-duration="300">
+                    </iron-ajax>
+
+                    <iron-ajax method="GET" id="retrieveTitlesCall" url="/query/titles" contentType="application/json" handle-as="json" debounce-duration="300">
+                    </iron-ajax>
+
+                    <iron-ajax method="GET" id="retrieveFoundListCall" url="{{retrieveFoundListUrl}}" contentType="application/json" handle-as="json" debounce-duration="300">
+                    </iron-ajax>
+
+
+                </iron-pages>
+
+            </div>
+        </paper-scroll-header-panel>
+
+    </template>
+    <!-- build:js scripts/app.js -->
+    <script src="../app/scripts/app.js "></script>
+    <!-- endbuild-->
+</body>
+
+</html>
