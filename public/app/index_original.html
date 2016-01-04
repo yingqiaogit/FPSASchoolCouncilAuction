@@ -15,7 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta charset="utf-8">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="FPSA School Council Auction" />
+    <meta name="generator" content="FPSA School Council Silent Auction" />
     <title>FPSA School Council Auction</title>
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
@@ -30,17 +30,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="FPSA School Council Auction">
-    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+    <meta name="application-name" content="FPSA School Council Silent Auction">
+    <link rel="icon" sizes="192x192" href="./images/touch/chrome-touch-icon-192x192.png">
 
     <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Disaster Information Search">
+    <meta name="apple-mobile-web-app-title" content="FPSA School Council Silent Auction">
     <link rel="apple-touch-icon" href="./images/touch/apple-touch-icon.png">
 
     <!-- Tile icon for Win8 (144x144) -->
-    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileImage" content="./images/touch/ms-touch-icon-144x144-precomposed.png">
 
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="../app/styles/main.css">
@@ -49,6 +49,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
     <script src="../app/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <!-- endbuild -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.7/socket.io.js"></script>
 
     <!-- will be replaced with elements/elements.vulcanized.html -->
     <link rel="import" href="../app/elements/elements.html">
@@ -102,11 +104,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <p> Add new items </p>
                             </paper-button>
 
-                            <paper-button>
-                                <iron-image style="width:400px; height:400px;" sizing="contain"
-                                        src="http://lorempixel.com/600/400"></iron-image>
-                                <p> Art classes </p>
-                            </paper-button>
+                            <template is="dom-repeat" items="{{listedItems}}">
+                                <paper-button class="itemSelector" id = "{{item.id}}" on-click = "itemSelectorClick">
+                                    <iron-image style="width:400px; height:400px;" sizing="contain"
+                                                src="{{item.primary_url}}"></iron-image>
+                                    <p> {{item.title}} </p>
+                                </paper-button>
+                            </template>
 
 
                         </paper-material>
@@ -116,15 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <section data-route="additempage" animateInitialSelection="true" id="additempage">
                         <div class="subject"> Please name your item and describe it as well </div>
 
-                        <paper-material elevation="1">
-                            <p class="paper-font-body2">You may enter the title of the item. The title will be displayed in the home page.</p>
-                            <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}"></paper-input>
-                        </paper-material>
-
-                        <paper-material elevation="1">
-                            <p class="paper-font-body2">You may enter the description of the item. </p>
-                            <paper-textarea id="descriptionInput" value="{{newItem.description}}"></paper-textarea>
-                        </paper-material>
+                        <add-item new-item="{{newItem}}"></add-item>
 
                         <paper-fab id="addItemButton" class="nextButton" icon="file-upload"></paper-fab>
                         <p class="nextButton">Submit &nbsp </p>
@@ -133,36 +129,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     </section>
 
-                    <section data-route="selecteditem" animateInitialSelection="true" id="selecteditem">
-                        <div class="subject">Your Item</div>
+                    <section data-route="selecteditempage" animateInitialSelection="true" id="selecteditempage">
+                        <div class="subject">Item Information</div>
                         <paper-material elevation="1">
-                            <div class="subject">{{title}}</div>
-                            <div calss="ratinginfo">{{description}}</div>
-                        </paper-material>
 
-                        <div class="subject">Search Results</div>
-                        <paper-material elevation="1">
-                            <ul>
-                                <template is="dom-repeat" items="{{list}}">
-                                    <li><a href="{{item.url}}" target="_blank">{{item.label}}</a></li>
-                                    <br>
-                                </template>
-                            </ul>
+                            <display-item selected="{{selected}}">
+                            </display-item>
 
                         </paper-material>
 
-                        <paper-material>
-                            <v-grid selection-mode="disabled">
-                                <table>
-                                    <!-- Define the columns -->
-                                    <col name="rank" header-text="Rank" width="10">
-                                    <col name="label" header-text="Title">
-                                    <col name="country" header-text="Location">
-                                    <col name="geoobj" header-text="Geological Objects">
-                                    <col name="total" header-text="Total">
-                                </table>
-                            </v-grid>
-                        </paper-material>
+                        <template is="dom-if" if="{{!bidingForm.status}}">
+                            <div class="subject">Biding Information</div>
+                            <paper-material>
+                                <v-grid selection-mode="disabled">
+                                    <table>
+                                        <!-- Define the columns -->
+                                        <col name="rank" header-text="Rank" width="10">
+                                        <col name="price" header-text="Price">
+                                        <col name="time" header-text="Biding Time">
+                                    </table>
+                                </v-grid>
+                            </paper-material>
+
+                            <paper-button raised = "true" on-click="biding"> Bid </paper-button>
+                            <paper-button raised = "true" > Update </paper-button>
+                            <paper-button raised = "true" > Delete </paper-button>
+                        </template>
+
+                        <template is="dom-if" if="{{bidingForm.status}}">
+                            <bid-item biding-form = "{{bidingForm}}"></bid-item>
+                            <paper-button raised = "true" on-click="submitbid"> Done! </paper-button>
+                        </template>
+
                     </section>
 
                     <section data-route="admin" id="admin">
@@ -197,10 +195,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <iron-ajax method="POST" id="addItemCall" url="/items/submit" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
 
-                    <iron-ajax method="GET" id="retrieveTitlesCall" url="/query/titles" contentType="application/json" handle-as="json" debounce-duration="300">
+                    <iron-ajax method="POST" id="bidItemCall" url="/items/bid" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
 
-                    <iron-ajax method="GET" id="retrieveFoundListCall" url="{{retrieveFoundListUrl}}" contentType="application/json" handle-as="json" debounce-duration="300">
+                    <iron-ajax method="GET" id="retrieveListCall" url="/items/list" contentType="application/json" handle-as="json" debounce-duration="300">
+                    </iron-ajax>
+
+                    <iron-ajax method="GET" id="retrieveItemCall" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
 
 

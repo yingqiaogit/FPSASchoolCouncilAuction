@@ -8,7 +8,11 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<dom-module id="my-greeting">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+
+<dom-module id="bid-item">
   <style>
     :host {
       display: block;
@@ -21,34 +25,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <h1 class="paper-font-display1"><span>{{greeting}}</span></h1>
-    <span class="paper-font-body2">Update text to change the greeting.</span>
-    <!-- Listens for "input" event and sets greeting to <input>.value -->
-    <input id='greetinginput' class="paper-font-body2" value="{{greeting::input}}" on-change="changeHandler">
+    <paper-material elevation="1">
+      <p class="paper-font-body2">Biding price: <span> {{bidingForm.price}}</span> </p>
+
+      <p class="paper-font-body2">Your email
+      <paper-input value="{{bidingForm.email}}"></paper-input>
+      </p>
+    </paper-material>
+
   </template>
 
   <script>
     (function() {
       Polymer({
-        is: 'my-greeting',
+        is: 'bid-item',
 
         properties: {
-          greeting: {
-            type: String,
-            value: 'Welcome!',
+          bidingForm:{
+            type: Object,
             notify: true
           }
-        },
-
-        changeHandler: function(e){
-
-            var greetinginput = document.getElementById('greetinginput');
-
-            this.$.greeting= greetinginput.value;
 
         }
-
-
       });
     })();
   </script>

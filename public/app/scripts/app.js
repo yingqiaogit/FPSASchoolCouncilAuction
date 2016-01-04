@@ -9,7 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 var newItem = {
     title: null,
-    description: null
+    description:null,
+    initialprice: null,
+    increment: null
 };
 
 (function () {
@@ -58,12 +60,12 @@ var newItem = {
         categorySelect.addEventListener('click', function (event) {
 
             if (categorySelect.selected == 0) {
-                    pages.selected = "home";
+                openItemList();
+                pages.selected = "home";
             } else
                 if (categorySelect.selected == 1)
                 {
                     pages.selected = "admin";
-                    openAnalysis()
                 }
 
         });
@@ -78,11 +80,11 @@ var newItem = {
 
         });
 
-        var addItemCall = document.querySelector('#addItemCall');
+        var addItemAjax = document.querySelector('#addItemCall');
 
         var toaster = document.querySelector('#toaster');
 
-        addItemCall.addEventListener('response', function (e) {
+        addItemAjax.addEventListener('response', function (e) {
             console.log("response from server" + JSON.stringify(e.detail.response));
             //after an item is added, the item list in the home page is
             //refreshed by the response
@@ -97,17 +99,8 @@ var newItem = {
 
             var results = e.detail.response.titles;
 
-            var list = [];
+            app.listedItems = results;
 
-            results.forEach(function(item){
-                var element = {};
-                element.id = item.id;
-                element.primary_url = item.primary_url;
-                element.title = item.title;
-                list.push(element);
-            })
-
-            app.list = list;
             pages.selected = "home"
 
             //scrollup
@@ -117,18 +110,15 @@ var newItem = {
         var addItemSubmission = function () {
 
             //submit the item
-            var addItemData = {};
-            addItemData.title = app.newItem.title;
-            addItemData.description = app.newItem.description;
-            addItemData.primary_url = "http://lorempixel.com/600/400"
+            var submittedItem = app.newItem;
 
-            console.log(addItemData);
+            submittedItem.primary_url = "../images/example.png";
 
-            addItemCall.body = JSON.stringify(addItemData);
+            addItemAjax.body = JSON.stringify(app.newItem);
 
-            console.log(addItemCall.body);
+            console.log(addItemAjax.body);
 
-            addItemCall.generateRequest();
+            addItemAjax.generateRequest();
         };
 
         var addItemButton = document.querySelector('#addItemButton');
@@ -149,71 +139,151 @@ var newItem = {
                 return;
             }
             addItemSubmission();
-            pages.selected = "home";
+
         });
 
-        var searchedItems;
+        var listedItems;
 
-        var retrieveTitlesCall = document.querySelector('#retrieveTitlesCall');
+        var retrieveListAjax = document.querySelector('#retrieveListCall');
 
-        retrieveTitlesCall.addEventListener('response',function(event){
+        retrieveListAjax.addEventListener('response',function(event){
 
-            searchedItems = event.detail.response.titles;
+            listedItems = event.detail.response.titles;
 
-            console.log("titles:" + JSON.stringify(searchedItems));
-            app.searchedItems = searchedItems;
+            console.log("titles:" + JSON.stringify(listedItems));
+            app.listedItems = listedItems;
         });
 
-        var openAnalysis=function(){
-            retrieveTitlesCall.generateRequest();
+        var openItemList=function(){
+            retrieveListAjax.generateRequest();
         };
 
-        var titleSelector = document.querySelector('#titleselector');
+        //retrieve the item list first
+        openItemList();
 
-        var retrieveFoundListCall = document.querySelector('#retrieveFoundListCall')
+        /*
+        var itemSelectorButton = document.querySelector('itemSelector');
+
+        itemSelectorButton.addEventListener('click', function(event){
+            console.log(JSON.stringify(event));
+        });
+        */
+
+        app.itemSelectorClick= function(event){
+            console.log("The item is pressed");
+            var item = event.model.item;
+            var id = item.id;
+
+            //retrieve the item with the id
+            //and open the item page
+            retrieveItem(id);
+            pages.selected = "selecteditempage";
+        }
+
+
+        var retrieveItemAjax = document.querySelector('#retrieveItemCall')
+
+        var retrieveItem=function(id){
+
+            retrieveItemAjax.url = '/items/found?id='+id;
+
+            retrieveItemAjax.generateRequest();
+        }
+
+        var grid = document.querySelector("v-grid");
+
+        retrieveItemAjax.addEventListener('response', function(event){
+
+            var selected = event.detail.response.selected;
+
+            if (!selected.latestprice)
+                selected.latestprice = selected.initialprice;
+
+            app.selected = selected;
+
+            var bids = selected.bids;
+
+            console.log("bids as " + JSON.stringify(bids));
+
+            if (!bids)
+                return;
+
+            grid.data.source = bids;
+
+            grid.columns[0].renderer = function (cell) {
+                cell.element.innerHTML = cell.row.index;
+            }
+
+        });
+
+        var titleSelector = document.querySelector('#titleselector');
 
         titleSelector.addEventListener('iron-select', function(event){
 
             console.log(titleSelector.selected);
 
-            var id = searchedItems[titleSelector.selected].key;
+            var id = listedItems[titleSelector.selected].key;
 
             //compose a call to retrieve the found list
             console.log("selected id is " + id);
 
             app.retrieveFoundListUrl = '/query/found?id='+id;
 
-            retrieveFoundListCall.generateRequest();
+            retrieveItemAjax.generateRequest();
 
         });
 
-        var grid = document.querySelector("v-grid");
 
-        retrieveFoundListCall.addEventListener('response', function(event){
+        var socket;
+        var biding_form = {
+            status: false
+        }
 
-            app.selectedTitile = event.detail.response.title;
-            app.selectedDescription = event.detail.response.description;
+        app.bidingForm = biding_form;
 
-            var location =[];
-            var found = event.detail.response.found;
+        app.biding = function(event){
+            //connected to the socket at the server
+            //display a server message on console
+            var local_biding_form = {
+                status: true,
+                price: app.selected.latestprice + app.selected.increment,
+                email: null
+            };
 
-            if (!found)
-                return;
+            app.bidingForm = local_biding_form;
 
-            found.forEach(function(element){
-               var loc = {};
-               loc.lat = element.lat;
-               loc.lng = element.lng;
-               location.push(loc);
+            /*
+            socket = io.connect();
+            socket.on('welcome', function(data){
+                console.log(data);
+                socket.emit('biding', {price: 1.00});
+            });
+            */
+
+        };
+
+        var bidItemAjax = document.querySelector("#bidItemCall");
+
+        app.submitbid = function(event){
+
+            var bid = {};
+
+            bidItemAjax.body=JSON.stringify({
+                id:app.selected.id,
+                bid:{
+                    price:app.bidingForm.price,
+                    email:app.bidingForm.email
+                }
             });
 
-            app.locationItems = location;
+            bidItemAjax.generateRequest();
+        };
 
-            grid.data.source = event.detail.response.found;
-
-            grid.columns[0].renderer = function (cell) {
-                    cell.element.innerHTML = cell.row.index;
-            }
+        bidItemAjax.addEventListener('response', function (e) {
+            console.log("response from server" + JSON.stringify(e.detail.response));
+            //after an item is added, the item list in the home page is
+            //refreshed by the response
+            app.bidingForm= biding_form;
 
         });
 

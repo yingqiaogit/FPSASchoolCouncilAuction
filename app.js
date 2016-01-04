@@ -37,11 +37,17 @@ var appEnv = cfenv.getAppEnv();
 
 // start server on the specified port and binding host
 // start server on the specified port and binding host
-app.listen(appEnv.port, appEnv.bind, function () {
+
+var server = app.listen(appEnv.port, appEnv.bind, function () {
 
   // print a message when the server starts listening
   console.log('server starting on ' + appEnv.url);
 });
+
+var io = require('socket.io').listen(server);
+
+app.locals.io = io;
+
 
 // development error handler
 // will print stacktrace
@@ -87,6 +93,7 @@ var set_app = function(){
   app.locals.dbs = cloudant_db.dbs;
   require('./routes/index')(app);
   require('./routes/items')(app);
+  require('./routes/bidmessaging')(app);
 }
 
 function initializeDatabase(callback) {
