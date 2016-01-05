@@ -112,8 +112,6 @@ var newItem = {
             //submit the item
             var submittedItem = app.newItem;
 
-            submittedItem.primary_url = "../images/example.png";
-
             addItemAjax.body = JSON.stringify(app.newItem);
 
             console.log(addItemAjax.body);
