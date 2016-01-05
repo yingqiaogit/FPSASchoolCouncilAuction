@@ -8,16 +8,64 @@ module.exports= function(app){
 
     io = app.locals.io;
 
-    //setting up the handler
+    //storing the statuses of rooms
+    var rooms={};
+
+    var item_db = app.locals.dbs.items.handler;
 
     io.on('connection', function(socket){
+
         socket.emit('welcome',{hello: 'world'} );
+
         socket.on('biding', function(data){
             console.log(data);
         });
 
-    });
+        socket.on('create', function(room) {
+            //get the waiting queue of the room
+            if (!rooms[room])
+                rooms[room] = {
+                    queue: [],
+                    price: null
+                };
 
+            socket.join(room);
+
+            rooms[room].queue.push(socket.id);
+
+            //retrieve the price from the db
+            item_db.get(doc_id, {revs_info: true}, function (err, body) {
+                if (!err) {
+                    rooms[room].price = body.doc.currentprice;
+                    /* broadcast the status of the room to all of the clients in the room
+                    */
+                    io.sockets.in(room).emit('statusupdate',rooms[room]);
+                }
+                else{
+                    console.log("error in db");
+                }
+            });
+        });
+
+        socket.on('disconnect', function(msg){
+            var room = msg.room
+            var i = rooms[room].queue.indexOf(socket.id);
+            rooms[room].queue.splice(i,1);
+
+            if (!rooms[room].queue.length)
+                delete rooms[room];
+            else
+            {
+                if (msg.price)
+                    rooms[room].price = msg.price;
+                io.sockets.in(room).emit('statusupdate',rooms[room]);
+            }
+
+            socket.leave(room);
+
+        });
+
+    });
 
 
 

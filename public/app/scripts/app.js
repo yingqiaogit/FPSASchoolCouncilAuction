@@ -175,9 +175,18 @@ var newItem = {
             //retrieve the item with the id
             //and open the item page
             retrieveItem(id);
+            app.bidingstatus = initBidingStatus();
             pages.selected = "selecteditempage";
         }
 
+        var biding_status_init = {
+            biding: false,
+            waiting: false
+        }
+
+        var initBidingStatus = function(){
+            return biding_status_init;
+        }
 
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
 
@@ -188,14 +197,11 @@ var newItem = {
             retrieveItemAjax.generateRequest();
         }
 
-        var bidInfoGrid = document.querySelector('#bidinfogrid');
+        var bidInfoGrid = document.querySelector('v-grid');
 
         retrieveItemAjax.addEventListener('response', function(event){
 
             var selected = event.detail.response.selected;
-
-            if (!selected.latestprice)
-                selected.latestprice = selected.initialprice;
 
             app.selected = selected;
 
@@ -231,35 +237,68 @@ var newItem = {
 
         });
 
-
         var socket;
-        var biding_form = {
-            status: false
-        }
 
-        app.bidingForm = biding_form;
+        // either biding or waiting
+        var setBidingStatus = function(name,state){
+           var bidingstatus = biding_status_init;
+           bidingstatus[name] = state;
+           return bidingstatus;
+        }
 
         app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
-            var local_biding_form = {
-                status: true,
-                price: app.selected.latestprice + app.selected.increment,
-                email: null
-            };
-
-            app.bidingForm = local_biding_form;
-
-            /*
             socket = io.connect();
-            socket.on('welcome', function(data){
-                console.log(data);
-                socket.emit('biding', {price: 1.00});
-            });
-            */
 
+            var myid = socket.io.engine.id;
+
+            socket.emit('create', app.selected.id);
+
+            socket.on('statusupdate', function(status){
+
+                if (status.queue[0] == myid) {
+
+                    app.bidingstatus = setBidingStatus("biding", true);
+
+                    var local_biding_form = {
+                        price: Number(status.currentprice) + Number(app.selected.increment),
+                        email: null
+                    };
+
+                    app.bidingForm = local_biding_form;
+
+                }else {
+                    //display the waiting queue
+                    setBidingStatus("waiting", true);
+
+                    var waiting = [];
+
+                    status.queue.forEach(function(id, index){
+                        if (id == myid)
+                            waiting.push(true);
+                        else
+                            waiting.push(false);
+                    });
+                    app.waiting = waiting;
+                }
+            })
         };
 
+        app.leavewaiting = function(event){
+
+            leavingBiding();
+        }
+
+        var leavingBiding = function(price){
+            var msg = {};
+            msg.room = app.selected.id;
+            if (price)
+                msg.price = price;
+
+            socket.disconnect(msg);
+            pages.selected = "home";
+        }
         var bidItemAjax = document.querySelector("#bidItemCall");
 
         app.submitbid = function(event){
@@ -275,13 +314,16 @@ var newItem = {
             });
 
             bidItemAjax.generateRequest();
+            leavingBiding(app.bidingForm.price);
         };
 
         bidItemAjax.addEventListener('response', function (e) {
             console.log("response from server" + JSON.stringify(e.detail.response));
             //after an item is added, the item list in the home page is
             //refreshed by the response
-            app.bidingForm= biding_form;
+
+            //close the socket
+
 
         });
 

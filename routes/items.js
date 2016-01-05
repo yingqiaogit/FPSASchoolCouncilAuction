@@ -112,9 +112,8 @@ module.exports=function(app){
                     body.bids=[];
 
                 body.bids.push(bid);
-
+                body.doc.currentprice = bid.price;
                 //store the document back to the server
-
 
                 item_db.insert(body, function(err,body){
                   if(!err)
@@ -135,6 +134,8 @@ module.exports=function(app){
         var item_doc = {};
 
         item_doc.doc = JSON.parse(Object.keys(req.body)[0]);
+
+        item_doc.doc.currentprice = item_doc.doc.initprice;
 
         console.log(JSON.stringify(item_doc));
 
