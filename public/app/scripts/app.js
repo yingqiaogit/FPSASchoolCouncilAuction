@@ -59,6 +59,9 @@ var newItem = {
 
         categorySelect.addEventListener('click', function (event) {
 
+            if (pages.selected == 'selecteditempage')
+                leavingBiding(null);
+
             if (categorySelect.selected == 0) {
                 openItemList();
                 pages.selected = "home";
@@ -294,16 +297,19 @@ var newItem = {
         }
 
         var leavingBiding = function(price){
-            var msg = {};
-            msg.room = app.selected.id;
-            if (price)
-                msg.price = price;
 
-            if (socket) {
-                socket.emit('disconnection', msg);
-                socket = null;
+            if (app.bidingAction || app.waitingAction) {
+                var msg = {};
+                msg.room = app.selected.id;
+                if (price)
+                    msg.price = price;
+
+                if (socket) {
+                    socket.emit('disconnection', msg);
+                    socket = null;
+                }
+                initActions();
             }
-
             pages.selected = "home";
         }
 

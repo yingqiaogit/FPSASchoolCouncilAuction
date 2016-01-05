@@ -55,6 +55,36 @@ module.exports= function(app){
             });
         });
 
+        //default processing handler for disconnect
+        socket.on('disconnect', function() {
+
+            var client = {};
+            console.log('disconnect from ' + socket.id);
+
+            if (clients[socket.id])
+                client.room = clients[socket.id];
+            else
+                return;
+
+            var room = client.room
+            var i = rooms[room].queue.indexOf(socket.id);
+            rooms[room].queue.splice(i, 1);
+
+            socket.leave(room);
+
+            if (!rooms[room].queue.length) {
+                console.log("the room is empty");
+                delete rooms[room];
+            }
+            else {
+                if (client.price)
+                    rooms[room].price = client.price;
+                io.sockets.in(room).emit('statusupdate', rooms[room]);
+                console.log("status update as" + JSON.stringify(rooms[room]));
+            }
+        });
+
+        //for client leaving with message
         socket.on('disconnection', function(msg){
 
             var client={};
@@ -65,7 +95,7 @@ module.exports= function(app){
                 client = msg;
             }else
             {
-                if (clients[sockets.id])
+                if (clients[socket.id])
                     client.room = clients[socket.id];
                 else
                     return;
@@ -75,6 +105,8 @@ module.exports= function(app){
             var i = rooms[room].queue.indexOf(socket.id);
             rooms[room].queue.splice(i,1);
 
+            socket.leave(room);
+
             if (!rooms[room].queue.length) {
                 console.log("the room is empty");
                 delete rooms[room];
@@ -83,15 +115,12 @@ module.exports= function(app){
             {
                 if (client.price)
                     rooms[room].price = client.price;
+
                 io.sockets.in(room).emit('statusupdate',rooms[room]);
                 console.log("status update as" + JSON.stringify(rooms[room]));
             }
 
-            socket.leave(room);
         });
 
     });
-
-
-
 };
