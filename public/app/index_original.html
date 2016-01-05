@@ -141,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <template is="dom-if" if="{{!bidingForm.status}}">
                             <div class="subject">Biding Information</div>
                             <paper-material>
-                                <v-grid selection-mode="disabled">
+                                <v-grid selection-mode="disabled" id="bidinfogrid">
                                     <table>
                                         <!-- Define the columns -->
                                         <col name="rank" header-text="Rank" width="10">
@@ -179,7 +179,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-material>
 
                         <paper-material>
-                            <v-grid>
+                            <v-grid id="admingrid">
                                 <table>
                                     <!-- Define the columns -->
                                     <col name="rank" header-text="Rank" width="10">
