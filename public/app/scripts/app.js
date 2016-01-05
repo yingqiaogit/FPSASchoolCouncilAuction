@@ -112,8 +112,6 @@ var newItem = {
             //submit the item
             var submittedItem = app.newItem;
 
-            submittedItem.primary_url = "../images/example.png";
-
             addItemAjax.body = JSON.stringify(app.newItem);
 
             console.log(addItemAjax.body);
@@ -190,7 +188,7 @@ var newItem = {
             retrieveItemAjax.generateRequest();
         }
 
-        var grid = document.querySelector("v-grid");
+        var bidInfoGrid = document.querySelector('#bidinfogrid');
 
         retrieveItemAjax.addEventListener('response', function(event){
 
@@ -208,9 +206,9 @@ var newItem = {
             if (!bids)
                 return;
 
-            grid.data.source = bids;
+            bidInfoGrid.data.source = bids;
 
-            grid.columns[0].renderer = function (cell) {
+            bidInfoGrid.columns[0].renderer = function (cell) {
                 cell.element.innerHTML = cell.row.index;
             }
 

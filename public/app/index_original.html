@@ -99,14 +99,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <paper-material elevation="1">
                             <paper-button id="newItemPageButton">
-                                <iron-image style="width:400px; height:400px;" sizing="contain"
-                                            src="../images/newapp-icon.png"></iron-image>
+                                <iron-image style="width:320px; height:240px;" sizing="contain"
+                                            src='../images/newapp-icon.png'></iron-image>
                                 <p> Add new items </p>
                             </paper-button>
 
                             <template is="dom-repeat" items="{{listedItems}}">
                                 <paper-button class="itemSelector" id = "{{item.id}}" on-click = "itemSelectorClick">
-                                    <iron-image style="width:400px; height:400px;" sizing="contain"
+                                    <iron-image style="width:320px; height:240px;" sizing="contain"
                                                 src="{{item.primary_url}}"></iron-image>
                                     <p> {{item.title}} </p>
                                 </paper-button>
@@ -141,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <template is="dom-if" if="{{!bidingForm.status}}">
                             <div class="subject">Biding Information</div>
                             <paper-material>
-                                <v-grid selection-mode="disabled">
+                                <v-grid selection-mode="disabled" id="bidinfogrid">
                                     <table>
                                         <!-- Define the columns -->
                                         <col name="rank" header-text="Rank" width="10">
@@ -179,7 +179,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-material>
 
                         <paper-material>
-                            <v-grid>
+                            <v-grid id="admingrid">
                                 <table>
                                     <!-- Define the columns -->
                                     <col name="rank" header-text="Rank" width="10">
