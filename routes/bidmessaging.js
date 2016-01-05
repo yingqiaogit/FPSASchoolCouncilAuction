@@ -56,13 +56,16 @@ module.exports= function(app){
             var i = rooms[room].queue.indexOf(socket.id);
             rooms[room].queue.splice(i,1);
 
-            if (!rooms[room].queue.length)
+            if (!rooms[room].queue.length) {
+                console.log("the room is empty");
                 delete rooms[room];
+            }
             else
             {
                 if (msg.price)
                     rooms[room].price = msg.price;
                 io.sockets.in(room).emit('statusupdate',rooms[room]);
+                console.log("status update as" + JSON.stringify(rooms[room]));
             }
 
             socket.leave(room);
