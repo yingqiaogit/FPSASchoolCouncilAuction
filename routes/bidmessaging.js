@@ -8,16 +8,89 @@ module.exports= function(app){
 
     io = app.locals.io;
 
-    //setting up the handler
+    //storing the statuses of rooms
+    var rooms={};
+
+    var clients ={};
+
+    var item_db = app.locals.dbs.items.handler;
 
     io.on('connection', function(socket){
-        socket.emit('welcome',{hello: 'world'} );
+
         socket.on('biding', function(data){
             console.log(data);
         });
 
-    });
+        socket.on('create', function(room) {
+            //get the waiting queue of the room
+            console.log("join in the room " + room);
 
+            if (!rooms[room])
+                rooms[room] = {
+                    queue: [],
+                    price: null
+                };
+
+            socket.join(room);
+
+            clients[socket.id] = room;
+
+            rooms[room].queue.push(socket.id);
+
+            //retrieve the price from the db
+            item_db.get(room, {revs_info: true}, function (err, body) {
+                if (!err) {
+                    if (!body.doc.currentprice)
+                        body.doc.currentprice = Number(body.doc.initialprice);
+
+                    rooms[room].price = body.doc.currentprice;
+                    /* broadcast the status of the room to all of the clients in the room
+                    */
+                    io.sockets.in(room).emit('statusupdate',rooms[room]);
+                    console.log("status update as" + JSON.stringify(rooms[room]));
+                }
+                else{
+                    console.log("error in db");
+                }
+            });
+        });
+
+        socket.on('disconnection', function(msg){
+
+            var client={};
+            console.log('disconnect from ' + socket.id + " with msg " + JSON.stringify(msg));
+
+            if (msg)
+            {
+                client = msg;
+            }else
+            {
+                if (clients[sockets.id])
+                    client.room = clients[socket.id];
+                else
+                    return;
+            }
+
+            var room = client.room
+            var i = rooms[room].queue.indexOf(socket.id);
+            rooms[room].queue.splice(i,1);
+
+            if (!rooms[room].queue.length) {
+                console.log("the room is empty");
+                delete rooms[room];
+            }
+            else
+            {
+                if (client.price)
+                    rooms[room].price = client.price;
+                io.sockets.in(room).emit('statusupdate',rooms[room]);
+                console.log("status update as" + JSON.stringify(rooms[room]));
+            }
+
+            socket.leave(room);
+        });
+
+    });
 
 
 

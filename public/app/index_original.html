@@ -138,15 +138,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         </paper-material>
 
-                        <template is="dom-if" if="{{!bidingForm.status}}">
+                        <template is="dom-if" if="{{!bidingAction}}">
                             <div class="subject">Biding Information</div>
                             <paper-material>
                                 <v-grid selection-mode="disabled" id="bidinfogrid">
                                     <table>
                                         <!-- Define the columns -->
                                         <col name="rank" header-text="Rank" width="10">
-                                        <col name="price" header-text="Price">
-                                        <col name="time" header-text="Biding Time">
+                                            <col name="price" header-text="Price">
+                                                <col name="time" header-text="Biding Time">
                                     </table>
                                 </v-grid>
                             </paper-material>
@@ -156,15 +156,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-button raised = "true" > Delete </paper-button>
                         </template>
 
-                        <template is="dom-if" if="{{bidingForm.status}}">
+                        <template is="dom-if" if="{{bidingAction}}">
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
                             <paper-button raised = "true" on-click="submitbid"> Done! </paper-button>
                         </template>
 
+                        <template is="dom-if" if="{{waitingAction}}">
+                            <template is="dom-repeat" items="{{waiting}}">
+                                <template is="dom-if" if="{{item}}">
+                                    <paper-icon-button icon="face" style="color: red;" disabled="true"></paper-icon-button>
+                                </template>
+                                <template is="dom-if" if="{{!item}}">
+                                    <paper-icon-button icon="face" style="color: green;" disabled="true"></paper-icon-button>
+                                </template>
+                            </template>
+                            <paper-icon-button icon="assignment" disabled="true"></paper-icon-button>
+                            <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
+                        </template>
                     </section>
 
                     <section data-route="admin" id="admin">
-
                         <paper-dropdown-menu label="Select an item">
                             <paper-menu id="titleselector" class="dropdown-content" selected="0">
                                 <template is="dom-repeat" items="{{searchedItems}}">
@@ -179,14 +190,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-material>
 
                         <paper-material>
-                            <v-grid id="admingrid">
+                            <v-grid>
                                 <table>
                                     <!-- Define the columns -->
                                     <col name="rank" header-text="Rank" width="10">
-                                       <col name="label" header-text="Title">
-                                            <col name="country" header-text="Location">
-                                                <col name="geoobj" header-text="Geological Objects">
-                                                    <col name="total" header-text="Total">
+                                       <col name="price" header-text="Title">
+                                            <col name="time" header-text="Location">
+
                                 </table>
                             </v-grid>
                         </paper-material>

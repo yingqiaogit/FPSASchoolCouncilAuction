@@ -175,9 +175,16 @@ var newItem = {
             //retrieve the item with the id
             //and open the item page
             retrieveItem(id);
+            initActions();
             pages.selected = "selecteditempage";
         }
 
+        var initActions = function(){
+            app.bidingAction = false;
+            app.waitingAction = false;
+        }
+
+        initActions();
 
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
 
@@ -188,14 +195,9 @@ var newItem = {
             retrieveItemAjax.generateRequest();
         }
 
-        var bidInfoGrid = document.querySelector('#bidinfogrid');
-
         retrieveItemAjax.addEventListener('response', function(event){
 
             var selected = event.detail.response.selected;
-
-            if (!selected.latestprice)
-                selected.latestprice = selected.initialprice;
 
             app.selected = selected;
 
@@ -206,12 +208,13 @@ var newItem = {
             if (!bids)
                 return;
 
+            var bidInfoGrid = document.querySelector('#bidinfogrid');
+
             bidInfoGrid.data.source = bids;
 
             bidInfoGrid.columns[0].renderer = function (cell) {
                 cell.element.innerHTML = cell.row.index;
             }
-
         });
 
         var titleSelector = document.querySelector('#titleselector');
@@ -231,34 +234,78 @@ var newItem = {
 
         });
 
-
         var socket;
-        var biding_form = {
-            status: false
+
+        // either biding or waiting
+        var setBidingAction = function(){
+           app.bidingAction = true;
+           app.waitingAction = false;
         }
 
-        app.bidingForm = biding_form;
+        var setWaitingAction = function(){
+            app.bidingAction = false;
+            app.waitingAction = true;
+        }
+
 
         app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
-            var local_biding_form = {
-                status: true,
-                price: app.selected.latestprice + app.selected.increment,
-                email: null
-            };
-
-            app.bidingForm = local_biding_form;
-
-            /*
             socket = io.connect();
-            socket.on('welcome', function(data){
-                console.log(data);
-                socket.emit('biding', {price: 1.00});
-            });
-            */
 
+            socket.emit('create', app.selected.id);
+
+            socket.on('statusupdate', function(status){
+
+                var myid = socket.io.engine.id;
+
+                console.log("status of the queue is "+ JSON.stringify(status));
+
+                if (status.queue[0] == myid) {
+
+                    var local_biding_form = {
+                        price: Number(status.price) + Number(app.selected.increment),
+                        email: null
+                    };
+
+                    app.bidingForm = local_biding_form;
+
+                    app.bidingAction = true;
+
+                }else {
+                    //display the waiting queue
+                    app.waitingAction = true;
+
+                    var waiting = [];
+
+                    status.queue.forEach(function(id, index){
+                        if (id == myid)
+                            waiting.push(true);
+                        else
+                            waiting.push(false);
+                    });
+                    app.waiting = waiting;
+                }
+            })
         };
+
+        app.leavewaiting = function(event){
+            leavingBiding(null);
+        }
+
+        var leavingBiding = function(price){
+            var msg = {};
+            msg.room = app.selected.id;
+            if (price)
+                msg.price = price;
+
+            if (socket) {
+                socket.emit('disconnection', msg);
+                socket = null;
+            }
+
+            pages.selected = "home";
+        }
 
         var bidItemAjax = document.querySelector("#bidItemCall");
 
@@ -275,13 +322,16 @@ var newItem = {
             });
 
             bidItemAjax.generateRequest();
+            leavingBiding(app.bidingForm.price);
         };
 
         bidItemAjax.addEventListener('response', function (e) {
             console.log("response from server" + JSON.stringify(e.detail.response));
             //after an item is added, the item list in the home page is
             //refreshed by the response
-            app.bidingForm= biding_form;
+
+            //close the socket
+
 
         });
 

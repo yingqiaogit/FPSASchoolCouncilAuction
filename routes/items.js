@@ -70,6 +70,8 @@ module.exports=function(app){
 
                 var selected = {};
                 selected = extend(body.doc,{id: body._id});
+                if (!body.doc.currentprice)
+                    body.doc.currentprice = Number(body.doc.initialprice);
                 if (body.bids) {
                     var bids = [];
                     body.bids.forEach(function (current) {
@@ -112,9 +114,8 @@ module.exports=function(app){
                     body.bids=[];
 
                 body.bids.push(bid);
-
+                body.doc.currentprice = bid.price;
                 //store the document back to the server
-
 
                 item_db.insert(body, function(err,body){
                   if(!err)
@@ -135,6 +136,8 @@ module.exports=function(app){
         var item_doc = {};
 
         item_doc.doc = JSON.parse(Object.keys(req.body)[0]);
+
+        item_doc.doc.currentprice = item_doc.doc.initialprice;
 
         console.log(JSON.stringify(item_doc));
 
