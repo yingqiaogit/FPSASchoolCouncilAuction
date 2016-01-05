@@ -70,6 +70,8 @@ module.exports=function(app){
 
                 var selected = {};
                 selected = extend(body.doc,{id: body._id});
+                if (!body.doc.currentprice)
+                    body.doc.currentprice = Number(body.doc.initialprice);
                 if (body.bids) {
                     var bids = [];
                     body.bids.forEach(function (current) {
@@ -135,7 +137,7 @@ module.exports=function(app){
 
         item_doc.doc = JSON.parse(Object.keys(req.body)[0]);
 
-        item_doc.doc.currentprice = item_doc.doc.initprice;
+        item_doc.doc.currentprice = item_doc.doc.initialprice;
 
         console.log(JSON.stringify(item_doc));
 

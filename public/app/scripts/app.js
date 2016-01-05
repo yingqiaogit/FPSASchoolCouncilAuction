@@ -175,17 +175,13 @@ var newItem = {
             //retrieve the item with the id
             //and open the item page
             retrieveItem(id);
-            app.bidingstatus = initBidingStatus();
+            initActions();
             pages.selected = "selecteditempage";
         }
 
-        var biding_status_init = {
-            biding: false,
-            waiting: false
-        }
-
-        var initBidingStatus = function(){
-            return biding_status_init;
+        var initActions = function(){
+            app.bidingAction = false;
+            app.waitingAction = false;
         }
 
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
@@ -240,26 +236,31 @@ var newItem = {
         var socket;
 
         // either biding or waiting
-        var setBidingStatus = function(name,state){
-           var bidingstatus = biding_status_init;
-           bidingstatus[name] = state;
-           return bidingstatus;
+        var setBidingAction = function(){
+           app.bidingAction = true;
+           app.waitingAction = false;
         }
+
+        var setWaitingAction = function(){
+            app.bidingAction = false;
+            app.waitingAction = true;
+        }
+
 
         app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
             socket = io.connect();
 
-            var myid = socket.io.engine.id;
-
             socket.emit('create', app.selected.id);
 
             socket.on('statusupdate', function(status){
 
-                if (status.queue[0] == myid) {
+                var myid = socket.io.engine.id;
 
-                    app.bidingstatus = setBidingStatus("biding", true);
+                console.log("status of the queue is "+ JSON.stringify(status));
+
+                if (status.queue[0] == myid) {
 
                     var local_biding_form = {
                         price: Number(status.price) + Number(app.selected.increment),
@@ -268,9 +269,11 @@ var newItem = {
 
                     app.bidingForm = local_biding_form;
 
+                    app.bidingAction = true;
+
                 }else {
                     //display the waiting queue
-                    setBidingStatus("waiting", true);
+                    app.waitingAction = true;
 
                     var waiting = [];
 
@@ -286,7 +289,6 @@ var newItem = {
         };
 
         app.leavewaiting = function(event){
-
             leavingBiding();
         }
 

@@ -34,12 +34,16 @@ module.exports= function(app){
             rooms[room].queue.push(socket.id);
 
             //retrieve the price from the db
-            item_db.get(doc_id, {revs_info: true}, function (err, body) {
+            item_db.get(room, {revs_info: true}, function (err, body) {
                 if (!err) {
+                    if (!body.doc.currentprice)
+                        body.doc.currentprice = Number(body.doc.initialprice);
+
                     rooms[room].price = body.doc.currentprice;
                     /* broadcast the status of the room to all of the clients in the room
                     */
                     io.sockets.in(room).emit('statusupdate',rooms[room]);
+                    console.log("status update as" + JSON.stringify(rooms[room]));
                 }
                 else{
                     console.log("error in db");
