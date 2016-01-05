@@ -262,7 +262,7 @@ var newItem = {
                     app.bidingstatus = setBidingStatus("biding", true);
 
                     var local_biding_form = {
-                        price: Number(status.currentprice) + Number(app.selected.increment),
+                        price: Number(status.price) + Number(app.selected.increment),
                         email: null
                     };
 
