@@ -11,11 +11,11 @@ module.exports= function(app){
     //storing the statuses of rooms
     var rooms={};
 
+    var clients ={};
+
     var item_db = app.locals.dbs.items.handler;
 
     io.on('connection', function(socket){
-
-        socket.emit('welcome',{hello: 'world'} );
 
         socket.on('biding', function(data){
             console.log(data);
@@ -23,6 +23,8 @@ module.exports= function(app){
 
         socket.on('create', function(room) {
             //get the waiting queue of the room
+            console.log("join in the room " + room);
+
             if (!rooms[room])
                 rooms[room] = {
                     queue: [],
@@ -30,6 +32,8 @@ module.exports= function(app){
                 };
 
             socket.join(room);
+
+            clients[socket.id] = room;
 
             rooms[room].queue.push(socket.id);
 
@@ -51,8 +55,23 @@ module.exports= function(app){
             });
         });
 
-        socket.on('disconnect', function(msg){
-            var room = msg.room
+        socket.on('disconnection', function(msg){
+
+            var client={};
+            console.log('disconnect from ' + socket.id + " with msg " + JSON.stringify(msg));
+
+            if (msg)
+            {
+                client = msg;
+            }else
+            {
+                if (clients[sockets.id])
+                    client.room = clients[socket.id];
+                else
+                    return;
+            }
+
+            var room = client.room
             var i = rooms[room].queue.indexOf(socket.id);
             rooms[room].queue.splice(i,1);
 
@@ -62,14 +81,13 @@ module.exports= function(app){
             }
             else
             {
-                if (msg.price)
-                    rooms[room].price = msg.price;
+                if (client.price)
+                    rooms[room].price = client.price;
                 io.sockets.in(room).emit('statusupdate',rooms[room]);
                 console.log("status update as" + JSON.stringify(rooms[room]));
             }
 
             socket.leave(room);
-
         });
 
     });

@@ -184,6 +184,8 @@ var newItem = {
             app.waitingAction = false;
         }
 
+        initActions();
+
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
 
         var retrieveItem=function(id){
@@ -192,8 +194,6 @@ var newItem = {
 
             retrieveItemAjax.generateRequest();
         }
-
-        var bidInfoGrid = document.querySelector('v-grid');
 
         retrieveItemAjax.addEventListener('response', function(event){
 
@@ -208,12 +208,13 @@ var newItem = {
             if (!bids)
                 return;
 
+            var bidInfoGrid = document.querySelector('#bidinfogrid');
+
             bidInfoGrid.data.source = bids;
 
             bidInfoGrid.columns[0].renderer = function (cell) {
                 cell.element.innerHTML = cell.row.index;
             }
-
         });
 
         var titleSelector = document.querySelector('#titleselector');
@@ -289,7 +290,7 @@ var newItem = {
         };
 
         app.leavewaiting = function(event){
-            leavingBiding();
+            leavingBiding(null);
         }
 
         var leavingBiding = function(price){
@@ -298,9 +299,14 @@ var newItem = {
             if (price)
                 msg.price = price;
 
-            socket.disconnect(msg);
+            if (socket) {
+                socket.emit('disconnection', msg);
+                socket = null;
+            }
+
             pages.selected = "home";
         }
+
         var bidItemAjax = document.querySelector("#bidItemCall");
 
         app.submitbid = function(event){
