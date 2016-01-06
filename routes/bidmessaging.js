@@ -66,9 +66,14 @@ module.exports= function(app){
             else
                 return;
 
+            delete clients[socket.id];
+
             var room = client.room
-            var i = rooms[room].queue.indexOf(socket.id);
-            rooms[room].queue.splice(i, 1);
+            if (rooms[room]) {
+                var i = rooms[room].queue.indexOf(socket.id);
+                if (i >= 0)
+                    rooms[room].queue.splice(i, 1);
+            }
 
             socket.disconnect();
 
@@ -101,6 +106,8 @@ module.exports= function(app){
                     return;
             }
 
+            delete clients[socket.id];
+
             var room = client.room
             var i = rooms[room].queue.indexOf(socket.id);
             rooms[room].queue.splice(i,1);
@@ -119,7 +126,6 @@ module.exports= function(app){
                 io.sockets.in(room).emit('statusupdate',rooms[room]);
                 console.log("status update as" + JSON.stringify(rooms[room]));
             }
-
         });
 
     });

@@ -163,7 +163,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
 
                         <template is="dom-if" if="{{waitingstate}}">
-                            <template is="dom-repeat" items="{{waiting}}">
+                            <div class="subject">You are waiting in the line now</div>
+                            <paper-icon-button icon="assignment" disabled="true"></paper-icon-button>
+
+                            <template is="dom-repeat" items="{{waitingqueue}}">
                                 <template is="dom-if" if="{{item}}">
                                     <paper-icon-button icon="face" style="color: red;" disabled="true"></paper-icon-button>
                                 </template>
@@ -171,7 +174,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-icon-button icon="face" style="color: green;" disabled="true"></paper-icon-button>
                                 </template>
                             </template>
-                            <paper-icon-button icon="assignment" disabled="true"></paper-icon-button>
+
+                            <br>
                             <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
                         </template>
                     </section>

@@ -263,6 +263,8 @@ var newItem = {
 
                 console.log("status of the queue is "+ JSON.stringify(status));
 
+                console.log("my id is " + myid + " my index is " + status.queue.indexOf(myid));
+
                 if (status.queue[0] == myid) {
 
                     var local_biding_form = {
@@ -284,7 +286,9 @@ var newItem = {
                         else
                             waiting.push(false);
                     });
+                    app.waitingqueue = waiting;
                     setBidingState('waiting');
+
                 }
             })
         };
