@@ -157,13 +157,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
 
                         <template is="dom-if" if="{{bidingstate}}">
+                            <div class="subject">It is your turn to make a bid for the item now</div>
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
                             <paper-button raised = "true" on-click="submitbid"> Bid! </paper-button>
                             <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
                         </template>
 
                         <template is="dom-if" if="{{waitingstate}}">
-                            <div class="subject">You are waiting in the line now</div>
+                            <div class="subject">You are waiting in the line for the item now</div>
                             <paper-icon-button icon="assignment" disabled="true"></paper-icon-button>
 
                             <template is="dom-repeat" items="{{waitingqueue}}">

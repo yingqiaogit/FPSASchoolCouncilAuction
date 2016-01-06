@@ -5,3 +5,8 @@ It supports the silent auction event organized by the school council at Fisher P
 1. Adding Item for the auction
 2. Making a bid on an item
 
+## index.html:
+The index.html is volunized from index_original.html by using the command:
+ vulcanize --inline-scripts --inline-css index_original.html > index.html
+
+

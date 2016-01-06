@@ -253,7 +253,7 @@ var newItem = {
        app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
-            socket = io.connect();
+            socket = io.connect({timeout:5000});
 
             socket.emit('create', app.selected.id);
 
