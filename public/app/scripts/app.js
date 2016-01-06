@@ -219,8 +219,10 @@ var newItem = {
 
             console.log("bids as " + JSON.stringify(bids));
 
-            if (!bids)
+            if (!bids) {
+                bidInfoGrid.data.source = null;
                 return;
+            }
 
             var bidInfoGrid = document.querySelector('#bidinfogrid');
 
@@ -293,7 +295,7 @@ var newItem = {
             })
         };
 
-        app.leavewaiting = function(event){
+        app.leavebiding = function(event){
             leavingBiding(null);
         }
 
