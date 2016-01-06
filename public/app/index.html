@@ -35062,6 +35062,7 @@ Fired whenever the directions service returns a result.
                             </paper-material>
 
                             <paper-button raised="true" on-click="biding"> Bid </paper-button>
+                            <paper-button raised="true" on-click="leavebiding"> Leave </paper-button>
 
                         </template>
 
@@ -35069,7 +35070,7 @@ Fired whenever the directions service returns a result.
                             <div class="subject">It is your turn to make a bid for the item now</div>
                             <bid-item biding-form="{{bidingForm}}"></bid-item>
                             <paper-button raised="true" on-click="submitbid"> Bid! </paper-button>
-                            <paper-button raised="true" on-click="leavewaiting"> Leave! </paper-button>
+                            <paper-button raised="true" on-click="leavebiding"> Leave! </paper-button>
                         </template>
 
                         <template is="dom-if" if="{{waitingstate}}">
@@ -35086,7 +35087,7 @@ Fired whenever the directions service returns a result.
                             </template>
 
                             <br>
-                            <paper-button raised="true" on-click="leavewaiting"> Leave! </paper-button>
+                            <paper-button raised="true" on-click="leavebiding"> Leave! </paper-button>
                         </template>
                     </section>
 
@@ -35354,14 +35355,17 @@ var newItem = {
 
             app.selected = selected;
 
+            var bidInfoGrid = document.querySelector('#bidinfogrid');
+
+            if (!selected.bids) {
+                var empty_source = [];
+                bidInfoGrid.data.source = [];
+                return;
+            }
+
             var bids = selected.bids;
 
             console.log("bids as " + JSON.stringify(bids));
-
-            if (!bids)
-                return;
-
-            var bidInfoGrid = document.querySelector('#bidinfogrid');
 
             bidInfoGrid.data.source = bids;
 
@@ -35432,7 +35436,7 @@ var newItem = {
             })
         };
 
-        app.leavewaiting = function(event){
+        app.leavebiding = function(event){
             leavingBiding(null);
         }
 

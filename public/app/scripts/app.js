@@ -215,14 +215,17 @@ var newItem = {
 
             app.selected = selected;
 
+            var bidInfoGrid = document.querySelector('#bidinfogrid');
+
+            if (!selected.bids) {
+                var empty_source = [];
+                bidInfoGrid.data.source = [];
+                return;
+            }
+
             var bids = selected.bids;
 
             console.log("bids as " + JSON.stringify(bids));
-
-            if (!bids)
-                return;
-
-            var bidInfoGrid = document.querySelector('#bidinfogrid');
 
             bidInfoGrid.data.source = bids;
 
@@ -293,7 +296,7 @@ var newItem = {
             })
         };
 
-        app.leavewaiting = function(event){
+        app.leavebiding = function(event){
             leavingBiding(null);
         }
 

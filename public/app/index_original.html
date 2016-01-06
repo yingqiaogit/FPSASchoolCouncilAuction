@@ -151,6 +151,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-material>
 
                             <paper-button raised = "true" on-click="biding"> Bid </paper-button>
+                            <paper-button raised = "true" on-click="leavebiding"> Leave </paper-button>
 
                         </template>
 
@@ -158,7 +159,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div class="subject">It is your turn to make a bid for the item now</div>
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
                             <paper-button raised = "true" on-click="submitbid"> Bid! </paper-button>
-                            <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
+                            <paper-button raised = "true" on-click="leavebiding"> Leave! </paper-button>
                         </template>
 
                         <template is="dom-if" if="{{waitingstate}}">
@@ -175,7 +176,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
 
                             <br>
-                            <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
+                            <paper-button raised = "true" on-click="leavebiding"> Leave! </paper-button>
                         </template>
                     </section>
 
