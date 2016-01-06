@@ -138,7 +138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         </paper-material>
 
-                        <template is="dom-if" if="{{!bidingAction}}">
+                        <template is="dom-if" if="{{initstate}}">
                             <div class="subject">Biding Information</div>
                             <paper-material>
                                 <v-grid selection-mode="disabled" id="bidinfogrid">
@@ -156,12 +156,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-button raised = "true" > Delete </paper-button>
                         </template>
 
-                        <template is="dom-if" if="{{bidingAction}}">
+                        <template is="dom-if" if="{{bidingstate}}">
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
-                            <paper-button raised = "true" on-click="submitbid"> Done! </paper-button>
+                            <paper-button raised = "true" on-click="submitbid"> Bid! </paper-button>
+                            <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
                         </template>
 
-                        <template is="dom-if" if="{{waitingAction}}">
+                        <template is="dom-if" if="{{waitingstate}}">
                             <template is="dom-repeat" items="{{waiting}}">
                                 <template is="dom-if" if="{{item}}">
                                     <paper-icon-button icon="face" style="color: red;" disabled="true"></paper-icon-button>

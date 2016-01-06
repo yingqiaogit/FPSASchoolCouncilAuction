@@ -70,7 +70,7 @@ module.exports= function(app){
             var i = rooms[room].queue.indexOf(socket.id);
             rooms[room].queue.splice(i, 1);
 
-            socket.leave(room);
+            socket.disconnect();
 
             if (!rooms[room].queue.length) {
                 console.log("the room is empty");
@@ -85,7 +85,7 @@ module.exports= function(app){
         });
 
         //for client leaving with message
-        socket.on('disconnection', function(msg){
+        socket.on('leave', function(msg){
 
             var client={};
             console.log('disconnect from ' + socket.id + " with msg " + JSON.stringify(msg));

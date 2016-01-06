@@ -178,16 +178,27 @@ var newItem = {
             //retrieve the item with the id
             //and open the item page
             retrieveItem(id);
-            initActions();
+            setBidingState("init");
             pages.selected = "selecteditempage";
         }
 
-        var initActions = function(){
-            app.bidingAction = false;
-            app.waitingAction = false;
+        var bidingstatus={
+            init: false,
+            biding:false,
+            waiting:false
         }
+        var setBidingState = function(state){
+            for (var key in bidingstatus){
+                if (key == state)
+                    bidingstatus[key]=true;
+                else
+                    bidingstatus[key]=false;
+            }
 
-        initActions();
+            app.initstate= bidingstatus.init;
+            app.bidingstate = bidingstatus.biding;
+            app.waitingstate = bidingstatus.waiting;
+        }
 
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
 
@@ -239,19 +250,7 @@ var newItem = {
 
         var socket;
 
-        // either biding or waiting
-        var setBidingAction = function(){
-           app.bidingAction = true;
-           app.waitingAction = false;
-        }
-
-        var setWaitingAction = function(){
-            app.bidingAction = false;
-            app.waitingAction = true;
-        }
-
-
-        app.biding = function(event){
+       app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
             socket = io.connect();
@@ -273,11 +272,9 @@ var newItem = {
 
                     app.bidingForm = local_biding_form;
 
-                    app.bidingAction = true;
-
+                    setBidingState('biding');
                 }else {
                     //display the waiting queue
-                    app.waitingAction = true;
 
                     var waiting = [];
 
@@ -287,7 +284,7 @@ var newItem = {
                         else
                             waiting.push(false);
                     });
-                    app.waiting = waiting;
+                    setBidingState('waiting');
                 }
             })
         };
@@ -298,17 +295,17 @@ var newItem = {
 
         var leavingBiding = function(price){
 
-            if (app.bidingAction || app.waitingAction) {
+            if (!app.initstate) {
                 var msg = {};
                 msg.room = app.selected.id;
                 if (price)
                     msg.price = price;
 
                 if (socket) {
-                    socket.emit('disconnection', msg);
+                    socket.emit('leave', msg);
                     socket = null;
                 }
-                initActions();
+                setBidingState('init');
             }
             pages.selected = "home";
         }
