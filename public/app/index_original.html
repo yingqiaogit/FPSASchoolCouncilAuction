@@ -83,7 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <paper-tabs id="categoryTab" selected="0" class="bottom self-end" style=" margin-bottom:0;color:white;font-size:14px;">
                     <paper-tab>HOME</paper-tab>
-                    <paper-tab>ADMIN</paper-tab>
                 </paper-tabs>
 
                 <!--                <div class="bottom flex self-start"></div>-->
@@ -138,7 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         </paper-material>
 
-                        <template is="dom-if" if="{{!bidingAction}}">
+                        <template is="dom-if" if="{{initstate}}">
                             <div class="subject">Biding Information</div>
                             <paper-material>
                                 <v-grid selection-mode="disabled" id="bidinfogrid">
@@ -152,17 +151,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </paper-material>
 
                             <paper-button raised = "true" on-click="biding"> Bid </paper-button>
-                            <paper-button raised = "true" > Update </paper-button>
-                            <paper-button raised = "true" > Delete </paper-button>
+
                         </template>
 
-                        <template is="dom-if" if="{{bidingAction}}">
+                        <template is="dom-if" if="{{bidingstate}}">
+                            <div class="subject">It is your turn to make a bid for the item now</div>
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
-                            <paper-button raised = "true" on-click="submitbid"> Done! </paper-button>
+                            <paper-button raised = "true" on-click="submitbid"> Bid! </paper-button>
+                            <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
                         </template>
 
-                        <template is="dom-if" if="{{waitingAction}}">
-                            <template is="dom-repeat" items="{{waiting}}">
+                        <template is="dom-if" if="{{waitingstate}}">
+                            <div class="subject">You are waiting in the line for the item now</div>
+                            <paper-icon-button icon="assignment" disabled="true"></paper-icon-button>
+
+                            <template is="dom-repeat" items="{{waitingqueue}}">
                                 <template is="dom-if" if="{{item}}">
                                     <paper-icon-button icon="face" style="color: red;" disabled="true"></paper-icon-button>
                                 </template>
@@ -170,7 +173,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-icon-button icon="face" style="color: green;" disabled="true"></paper-icon-button>
                                 </template>
                             </template>
-                            <paper-icon-button icon="assignment" disabled="true"></paper-icon-button>
+
+                            <br>
                             <paper-button raised = "true" on-click="leavewaiting"> Leave! </paper-button>
                         </template>
                     </section>

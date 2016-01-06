@@ -59,6 +59,9 @@ var newItem = {
 
         categorySelect.addEventListener('click', function (event) {
 
+            if (pages.selected == 'selecteditempage')
+                leavingBiding(null);
+
             if (categorySelect.selected == 0) {
                 openItemList();
                 pages.selected = "home";
@@ -175,16 +178,27 @@ var newItem = {
             //retrieve the item with the id
             //and open the item page
             retrieveItem(id);
-            initActions();
+            setBidingState("init");
             pages.selected = "selecteditempage";
         }
 
-        var initActions = function(){
-            app.bidingAction = false;
-            app.waitingAction = false;
+        var bidingstatus={
+            init: false,
+            biding:false,
+            waiting:false
         }
+        var setBidingState = function(state){
+            for (var key in bidingstatus){
+                if (key == state)
+                    bidingstatus[key]=true;
+                else
+                    bidingstatus[key]=false;
+            }
 
-        initActions();
+            app.initstate= bidingstatus.init;
+            app.bidingstate = bidingstatus.biding;
+            app.waitingstate = bidingstatus.waiting;
+        }
 
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
 
@@ -236,22 +250,10 @@ var newItem = {
 
         var socket;
 
-        // either biding or waiting
-        var setBidingAction = function(){
-           app.bidingAction = true;
-           app.waitingAction = false;
-        }
-
-        var setWaitingAction = function(){
-            app.bidingAction = false;
-            app.waitingAction = true;
-        }
-
-
-        app.biding = function(event){
+       app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
-            socket = io.connect();
+            socket = io.connect({timeout:5000});
 
             socket.emit('create', app.selected.id);
 
@@ -260,6 +262,8 @@ var newItem = {
                 var myid = socket.io.engine.id;
 
                 console.log("status of the queue is "+ JSON.stringify(status));
+
+                console.log("my id is " + myid + " my index is " + status.queue.indexOf(myid));
 
                 if (status.queue[0] == myid) {
 
@@ -270,11 +274,9 @@ var newItem = {
 
                     app.bidingForm = local_biding_form;
 
-                    app.bidingAction = true;
-
+                    setBidingState('biding');
                 }else {
                     //display the waiting queue
-                    app.waitingAction = true;
 
                     var waiting = [];
 
@@ -284,7 +286,9 @@ var newItem = {
                         else
                             waiting.push(false);
                     });
-                    app.waiting = waiting;
+                    app.waitingqueue = waiting;
+                    setBidingState('waiting');
+
                 }
             })
         };
@@ -294,16 +298,19 @@ var newItem = {
         }
 
         var leavingBiding = function(price){
-            var msg = {};
-            msg.room = app.selected.id;
-            if (price)
-                msg.price = price;
 
-            if (socket) {
-                socket.emit('disconnection', msg);
-                socket = null;
+            if (!app.initstate) {
+                var msg = {};
+                msg.room = app.selected.id;
+                if (price)
+                    msg.price = price;
+
+                if (socket) {
+                    socket.emit('leave', msg);
+                    socket = null;
+                }
+                setBidingState('init');
             }
-
             pages.selected = "home";
         }
 

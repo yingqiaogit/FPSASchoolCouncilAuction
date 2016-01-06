@@ -55,7 +55,42 @@ module.exports= function(app){
             });
         });
 
-        socket.on('disconnection', function(msg){
+        //default processing handler for disconnect
+        socket.on('disconnect', function() {
+
+            var client = {};
+            console.log('disconnect from ' + socket.id);
+
+            if (clients[socket.id])
+                client.room = clients[socket.id];
+            else
+                return;
+
+            delete clients[socket.id];
+
+            var room = client.room
+            if (rooms[room]) {
+                var i = rooms[room].queue.indexOf(socket.id);
+                if (i >= 0)
+                    rooms[room].queue.splice(i, 1);
+            }
+
+            socket.disconnect();
+
+            if (!rooms[room].queue.length) {
+                console.log("the room is empty");
+                delete rooms[room];
+            }
+            else {
+                if (client.price)
+                    rooms[room].price = client.price;
+                io.sockets.in(room).emit('statusupdate', rooms[room]);
+                console.log("status update as" + JSON.stringify(rooms[room]));
+            }
+        });
+
+        //for client leaving with message
+        socket.on('leave', function(msg){
 
             var client={};
             console.log('disconnect from ' + socket.id + " with msg " + JSON.stringify(msg));
@@ -65,15 +100,19 @@ module.exports= function(app){
                 client = msg;
             }else
             {
-                if (clients[sockets.id])
+                if (clients[socket.id])
                     client.room = clients[socket.id];
                 else
                     return;
             }
 
+            delete clients[socket.id];
+
             var room = client.room
             var i = rooms[room].queue.indexOf(socket.id);
             rooms[room].queue.splice(i,1);
+
+            socket.leave(room);
 
             if (!rooms[room].queue.length) {
                 console.log("the room is empty");
@@ -83,15 +122,11 @@ module.exports= function(app){
             {
                 if (client.price)
                     rooms[room].price = client.price;
+
                 io.sockets.in(room).emit('statusupdate',rooms[room]);
                 console.log("status update as" + JSON.stringify(rooms[room]));
             }
-
-            socket.leave(room);
         });
 
     });
-
-
-
 };
