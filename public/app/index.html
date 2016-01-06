@@ -35355,16 +35355,17 @@ var newItem = {
 
             app.selected = selected;
 
-            var bids = selected.bids;
+            var bidInfoGrid = document.querySelector('#bidinfogrid');
 
-            console.log("bids as " + JSON.stringify(bids));
-
-            if (!bids) {
-                bidInfoGrid.data.source = null;
+            if (!selected.bids) {
+                var empty_source = [];
+                bidInfoGrid.data.source = [];
                 return;
             }
 
-            var bidInfoGrid = document.querySelector('#bidinfogrid');
+            var bids = selected.bids;
+
+            console.log("bids as " + JSON.stringify(bids));
 
             bidInfoGrid.data.source = bids;
 
