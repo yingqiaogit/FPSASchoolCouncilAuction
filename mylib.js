@@ -1,40 +1,47 @@
 /**
  * Created by a on 11/10/2015.
+ * The item with bids is as
+ * id:
+ * initAt:
+ * bids:
  */
 
-var reorganizeEntitiesFrom= function(original){
-    var organized = {
-        GPE:[],
-        GEOLOGICALOBJ: [], // the geo locial object, e.g., river, mountain,
-        EVENT_DISASTER:[]  //event diasters
-    }
-    var location = [];
-    var country = [];
+var writeBidToTable= function(itemDB, bid, key){
 
-    original.forEach(function(item){
-        if (typeof organized[item.type] !='undefined' ){
-            //check if the key is GPE
-            var entity ={};
-            entity.name = item.mentref[0].text;
-            entity.score =item.score;
+    console.log("bid item as " + JSON.stringify(bid) + "with key as " + key);
 
-            if (item.type === 'GPE'){
-                if (item.subtype==='COUNTRY')
-                    country.push(entity);
+    /*push the bid into bids
+    *     bid:
+    *       {
+    *          price:
+    *          time:
+    *       }
+    */
+
+    itemDB.get(key, {revs_info:true}, function(err,body){
+        if (!err){
+            if (!body.bids)
+                body.bids=[];
+
+            body.bids.push(bid);
+
+            body.doc.currentprice = bid.price;
+            //store the document back to the server
+
+            //return the found list of the doc
+            console.log('body as' + JSON.stringify(body));
+
+            itemDB.insert(body, function(err,body){
+                if(!err)
+                    console.log('bid success')
                 else
-                    location.push(entity);
-            }else
-                organized[item.type].push(entity);
+                    console.log('bid error')
+            });
 
+        }else {
+            console.log('bid error')
         }
-    });
-
-    organized.LOCATION = location;
-    organized.COUNTRY = country;
-
-    delete organized.GPE;
-
-    return organized;
+    } );
 };
 
-module.exports.reorganizeEntities = reorganizeEntitiesFrom;
+module.exports.writebid = writeBidToTable;

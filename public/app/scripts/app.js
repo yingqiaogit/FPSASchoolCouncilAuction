@@ -53,18 +53,21 @@ var newItem = {
         });
         */
 
+        app.selected = null;
+
         var scrollHeadPanel = document.querySelectorAll('paper-scroll-header-panel');
 
         var categorySelect = document.querySelector('#categoryTab');
 
         categorySelect.addEventListener('click', function (event) {
 
-            if (pages.selected == 'selecteditempage')
-                leavingBiding(null);
-
             if (categorySelect.selected == 0) {
-                openItemList();
-                pages.selected = "home";
+
+                if (pages.selected == 'selecteditempage')
+                    leavingBiding(null);
+
+                if (pages.selected != 'home')
+                    goHome();
             } else
                 if (categorySelect.selected == 1)
                 {
@@ -122,9 +125,7 @@ var newItem = {
             addItemAjax.generateRequest();
         };
 
-        var addItemButton = document.querySelector('#addItemButton');
-
-        addItemButton.addEventListener('click', function(event){
+        app.addItemPressed = function(){
             var reg = /\[|\]/;
 
             if (!app.newItem.title || !app.newItem.description)
@@ -139,9 +140,10 @@ var newItem = {
                 toaster.show();
                 return;
             }
+
             addItemSubmission();
 
-        });
+        };
 
         var listedItems;
 
@@ -162,14 +164,6 @@ var newItem = {
         //retrieve the item list first
         openItemList();
 
-        /*
-        var itemSelectorButton = document.querySelector('itemSelector');
-
-        itemSelectorButton.addEventListener('click', function(event){
-            console.log(JSON.stringify(event));
-        });
-        */
-
         app.itemSelectorClick= function(event){
             console.log("The item is pressed");
             var item = event.model.item;
@@ -177,9 +171,68 @@ var newItem = {
 
             //retrieve the item with the id
             //and open the item page
+            openItemPage(id);
+        }
+
+        var socket;
+
+        var bidding_price_queue=[];
+
+        var resetItemPage= function(){
+
+            app.selected = null;
+            resetBidingStatus();
+            bidding_price_queue=[];
+        };
+
+         var openItemPage= function(id){
+
+            resetItemPage();
+
+            socket = io.connect({timeout:5000});
+
+            socket.emit('joinroom', id);
+
+            socket.on('statusupdate', function(status){
+               //if the item is not retrieved yet
+               //store the received price in a local queue;
+                var bid = status.lastbid;
+
+
+                /*     lastbid:
+                 *        {
+                 *           price:
+                 *           time:
+                 *        }
+                 */
+                console.log("received status update " + JSON.stringify(status));
+
+                if (app.selected == null) {
+                   bidding_price_queue.push(bid);
+               }else {
+                    if (bid.time == bidInfoGrid.data.source[bidInfoGrid.data.source.length - 1].time)
+                        return;
+
+                    var selected = JSON.parse(JSON.stringify(app.selected));
+
+                    selected.currentprice = bid.price;
+
+                    selected.bids.push(bid);
+
+                    app.selected = selected;
+
+                    bidInfoGrid.data.source = app.selected.bids;
+
+                    bidInfoGrid.columns[0].renderer = function (cell) {
+                        cell.element.innerHTML = cell.row.index;
+                    }
+                }
+            });
+
             retrieveItem(id);
             setBidingState("init");
             pages.selected = "selecteditempage";
+
         }
 
         var bidingstatus={
@@ -187,17 +240,29 @@ var newItem = {
             biding:false,
             waiting:false
         }
-        var setBidingState = function(state){
-            for (var key in bidingstatus){
-                if (key == state)
-                    bidingstatus[key]=true;
-                else
-                    bidingstatus[key]=false;
-            }
 
+        var setBidingState = function(state){
+            resetBidingStatus();
+            bidingstatus[state] = true;
+            updateAppBidingStatus();
+        }
+
+        var updateAppBidingStatus = function(){
             app.initstate= bidingstatus.init;
             app.bidingstate = bidingstatus.biding;
             app.waitingstate = bidingstatus.waiting;
+        }
+
+        var isBidingAt = function(state){
+         return (bidingstatus[state] == true);
+        }
+
+        var resetBidingStatus = function(){
+            Object.keys(bidingstatus).forEach(function(key){
+                bidingstatus[key]= false;
+            });
+            updateAppBidingStatus();
+
         }
 
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
@@ -209,21 +274,49 @@ var newItem = {
             retrieveItemAjax.generateRequest();
         }
 
+        var bidInfoGrid;
+
         retrieveItemAjax.addEventListener('response', function(event){
 
             var selected = event.detail.response.selected;
 
             app.selected = selected;
 
-            var bidInfoGrid = document.querySelector('#bidinfogrid');
+            bidInfoGrid = document.querySelector('#bidinfogrid');
 
             if (!selected.bids) {
-                var empty_source = [];
                 bidInfoGrid.data.source = [];
                 return;
             }
 
             var bids = selected.bids;
+
+            if (!bidding_price_queue) {
+                //find the first price not in bids
+                var start = -1;
+
+                if (bids)
+                    bidding_price_queue.forEach(function(price, index){
+                        if (price.time == bids[bids.length-1].formatedtime){
+                            start = index;
+                        }
+
+                    });
+
+                //pop out the prices existing in bids from bidding_price_queue
+                var pos = 0;
+                while (pos<=start) {
+                    bidding_price_queue.pop();
+                    pos++;
+                }
+
+                //pop out the remaining prices into bids
+                while (bidding_price_queue.length > 0)
+                        bids.push(bidding_price_queue.pop());
+
+                app.selected.currentprice = bids[bids.length-1].price;
+
+            }
 
             console.log("bids as " + JSON.stringify(bids));
 
@@ -251,16 +344,18 @@ var newItem = {
 
         });
 
-        var socket;
-
-       app.biding = function(event){
+        app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
-            socket = io.connect({timeout:5000});
 
-            socket.emit('create', app.selected.id);
+            socket.emit('joinbid', app.selected.id);
+
+            setBidingState('waiting');
 
             socket.on('statusupdate', function(status){
+
+                if (isBidingAt('init'))
+                    return;
 
                 var myid = socket.io.engine.id;
 
@@ -271,7 +366,7 @@ var newItem = {
                 if (status.queue[0] == myid) {
 
                     var local_biding_form = {
-                        price: Number(status.price) + Number(app.selected.increment),
+                        price: Number(status.lastbid.price) + Number(app.selected.increment),
                         email: null
                     };
 
@@ -300,50 +395,44 @@ var newItem = {
             leavingBiding(null);
         }
 
-        var leavingBiding = function(price){
-
-            if (!app.initstate) {
-                var msg = {};
-                msg.room = app.selected.id;
-                if (price)
-                    msg.price = price;
-
-                if (socket) {
-                    socket.emit('leave', msg);
-                    socket = null;
-                }
-                setBidingState('init');
+        var goHome = function(){
+            if (socket) {
+                socket.emit('leaveroom', null);
             }
+
+            resetItemPage();
+            openItemList();
             pages.selected = "home";
         }
 
-        var bidItemAjax = document.querySelector("#bidItemCall");
+        var leavingBiding = function(bid){
+
+            if (!isBidingAt('init')) {
+
+                if (socket) {
+                    socket.emit('leavebid', bid);
+                }
+
+                setBidingState('init');
+            }else{
+
+                goHome();
+            }
+        }
 
         app.submitbid = function(event){
 
             var bid = {};
 
-            bidItemAjax.body=JSON.stringify({
+            var bid_doc={
                 id:app.selected.id,
-                bid:{
-                    price:app.bidingForm.price,
-                    email:app.bidingForm.email
-                }
-            });
+                price:app.bidingForm.price,
+                email:app.bidingForm.email
+            };
 
-            bidItemAjax.generateRequest();
-            leavingBiding(app.bidingForm.price);
+            leavingBiding(bid_doc);
         };
 
-        bidItemAjax.addEventListener('response', function (e) {
-            console.log("response from server" + JSON.stringify(e.detail.response));
-            //after an item is added, the item list in the home page is
-            //refreshed by the response
-
-            //close the socket
-
-
-        });
 
     });
 
