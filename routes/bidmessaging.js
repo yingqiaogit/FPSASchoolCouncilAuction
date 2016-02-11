@@ -2,131 +2,216 @@
  * Created by a on 1/4/2016.
  */
 /* This is the module for handling the messages during biding
+ * Two membership: room and bidding queue
+ * The membership of room is managed by the socket library itself and the rooms variable
+ * The membership of queue is managed with the room.queue
+ * rooms=[
+ * {
+ *    roomID: {
+ *      queue:
+  *     lastbid:
+  *         {
+  *           price:
+  *           time:
+ *      }
+ *  }
  */
+//two cases here: leaving with a bid, or leaving without a bid
+var rooms={};
+
+var clients ={};
+
+var itemDB;
+
+var mylib = require('../mylib.js');
+
+var io;
+
+var leaveQueue = function(client){
+
+    var pos = isInQueue(client);
+
+    var room = clients[client.id];
+
+    if (pos >= 0) {
+        rooms[room].queue.splice(pos, 1);
+        return true;
+    }
+
+    return false;
+};
+
+var isInQueue = function(client){
+
+    var pos = -1;
+
+    if (clients[client.id])
+    {
+        var room = clients[client.id]
+
+        if (rooms[room])
+            pos = rooms[room].queue.indexOf(client.id);
+
+    }
+
+    return pos;
+}
+
+/*just leave room, the client is not in queue
+ *in the case a client is in queue, he has to leave the queue first
+ *client is the socket of the client
+ */
+var leaveRoom = function (client){
+
+    //leave the room first
+    var roomId = clients[client.id];
+
+    delete clients[client.id];
+
+    client.leave(roomId);
+
+    //cleaning the room if the room is empty
+    var curRoom = io.sockets.adapter.rooms[roomId];
+
+    if (!curRoom) {
+        console.log("the room is empty");
+        delete rooms[roomId];
+    }
+};
+
+var statusChangeNotification = function(room){
+
+    io.sockets.in(room).emit('statusupdate',rooms[room]);
+    console.log("status update as" + JSON.stringify(rooms[room]));
+};
 
 module.exports= function(app){
 
     io = app.locals.io;
 
+    itemDB = app.locals.dbs.items.handler;
+
     //storing the statuses of rooms
-    var rooms={};
 
-    var clients ={};
+    io.on('connection', function(clientSocket){
 
-    var item_db = app.locals.dbs.items.handler;
+       clientSocket.on('joinroom', function(room){
 
-    io.on('connection', function(socket){
-
-        socket.on('biding', function(data){
-            console.log(data);
-        });
-
-        socket.on('create', function(room) {
-            //get the waiting queue of the room
             console.log("join in the room " + room);
 
-            if (!rooms[room])
+            clientSocket.join(room);
+
+            clients[clientSocket.id] = room;
+
+            //open a room if there is no room
+            if (!rooms[room]) {
                 rooms[room] = {
                     queue: [],
-                    price: null
+                    lastbid: {
+                        price: null,
+                        time: null
+                    }
                 };
 
-            socket.join(room);
+                var lastbid = {};
+                itemDB.get(room, {revs_info: true}, function (err, body) {
+                    if (!err) {
+                        if (!body.bids) {
+                            lastbid.price = Number(body.doc.initialprice);
+                            lastbid.formatedtime = body.doc.formatedtime;
+                        } else {
+                            lastbid= body.bids[body.bids.length-1];
+                        }
 
-            clients[socket.id] = room;
+                        rooms[room].lastbid.price = lastbid.price;
+                        rooms[room].lastbid.time = lastbid.formatedtime;
 
-            rooms[room].queue.push(socket.id);
+                        // send a status update message to the newcommer
+                        clientSocket.emit('statusupdate', rooms[room]);
+                    }
+                    else {
+                        console.log("error in db");
+                    }
+                });
+            } else
+                clientSocket.emit('statusupdate', rooms[room]);
+        });
 
-            //retrieve the price from the db
-            item_db.get(room, {revs_info: true}, function (err, body) {
-                if (!err) {
-                    if (!body.doc.currentprice)
-                        body.doc.currentprice = Number(body.doc.initialprice);
+        clientSocket.on('joinbid', function(room) {
 
-                    rooms[room].price = body.doc.currentprice;
-                    /* broadcast the status of the room to all of the clients in the room
-                    */
-                    io.sockets.in(room).emit('statusupdate',rooms[room]);
-                    console.log("status update as" + JSON.stringify(rooms[room]));
-                }
-                else{
-                    console.log("error in db");
-                }
-            });
+            //get the waiting queue of the room
+            rooms[room].queue.push(clientSocket.id);
+
+            //update the status to the room
+            statusChangeNotification(room);
+
         });
 
         //default processing handler for disconnect
-        socket.on('disconnect', function() {
+        clientSocket.on('disconnect', function() {
 
-            var client = {};
-            console.log('disconnect from ' + socket.id);
+            console.log('disconnect from ' + clientSocket.id);
 
-            if (clients[socket.id])
-                client.room = clients[socket.id];
-            else
-                return;
+            var room = clients[clientSocket.id];
 
-            delete clients[socket.id];
+            //if the client is in bidding queue
+            var statusUpdate = leaveQueue(clientSocket);
 
-            var room = client.room
-            if (rooms[room]) {
-                var i = rooms[room].queue.indexOf(socket.id);
-                if (i >= 0)
-                    rooms[room].queue.splice(i, 1);
-            }
+            leaveRoom(clientSocket);
 
-            socket.disconnect();
+            clientSocket.disconnect();
 
-            if (!rooms[room].queue.length) {
-                console.log("the room is empty");
-                delete rooms[room];
-            }
-            else {
-                if (client.price)
-                    rooms[room].price = client.price;
-                io.sockets.in(room).emit('statusupdate', rooms[room]);
-                console.log("status update as" + JSON.stringify(rooms[room]));
-            }
+            if (statusUpdate)
+                statusChangeNotification(room);
         });
 
-        //for client leaving with message
-        socket.on('leave', function(msg){
+        //for client leaving the room with message
+        clientSocket.on('leaveroom', function(){
 
-            var client={};
-            console.log('disconnect from ' + socket.id + " with msg " + JSON.stringify(msg));
+            console.log('disconnect from ' + clientSocket.id);
 
-            if (msg)
-            {
-                client = msg;
-            }else
-            {
-                if (clients[socket.id])
-                    client.room = clients[socket.id];
-                else
-                    return;
-            }
-
-            delete clients[socket.id];
-
-            var room = client.room
-            var i = rooms[room].queue.indexOf(socket.id);
-            rooms[room].queue.splice(i,1);
-
-            socket.leave(room);
-
-            if (!rooms[room].queue.length) {
-                console.log("the room is empty");
-                delete rooms[room];
-            }
-            else
-            {
-                if (client.price)
-                    rooms[room].price = client.price;
-
-                io.sockets.in(room).emit('statusupdate',rooms[room]);
-                console.log("status update as" + JSON.stringify(rooms[room]));
-            }
+            leaveRoom(clientSocket);
         });
 
+        //for client leaving the biding queue with message
+        clientSocket.on('leavebid', function(bid){
+
+            console.log('leave biding queue from ' + clientSocket.id);
+
+            leaveQueue(clientSocket);
+
+            var room = clients[clientSocket.id];
+
+            //a client may leave with a bid
+            if (bid)
+                //store the biding information in the db then
+            {
+                /* The bid=
+                 * {
+                 *  id: the id of the item
+                 *  price:  the price from the bidder
+                 *  emailAddress: the email address of the bidder
+                 */
+
+
+
+                bid.recordedat=new Date().getTime();
+
+                bid.formatedtime = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+
+                var key = bid.id;
+
+                delete bid.id;
+
+                console.log(" with bid " + JSON.stringify(bid));
+
+                mylib.writebid(itemDB, bid, key);
+
+                rooms[room].lastbid.price = bid.price;
+                rooms[room].lastbid.time = bid.formatedtime;
+            }
+
+            statusChangeNotification(room);
+        });
     });
 };

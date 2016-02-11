@@ -26,23 +26,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <paper-material elevation="1">
-      <p class="paper-font-body2">You may enter the title of the item. The title will be displayed in the home page.</p>
-      <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}"></paper-input>
+      <p class="paper-font-body2">Title of the item (required):</p>
+      <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}" maxlength = 100></paper-input>
 
       <br>
-      <p class="paper-font-body2">You may enter the description of the item. </p>
-      <paper-textarea id="descriptionInput" value="{{newItem.description}}"></paper-textarea>
+      <p class="paper-font-body2">Description of the item (required): </p>
+      <paper-textarea id="descriptionInput" value="{{newItem.description}}" ></paper-textarea>
 
       <br>
-      <p class="paper-font-body2">The initial price of the item.</p>
-      <paper-input id="initialpriceInput" placeholder="initial price" value="{{newItem.initialprice}}"></paper-input>
+      <p class="paper-font-body2">The face value of the item (an integer number is preferred):</p>
+      <paper-input id="initialpriceInput" placeholder="initial price" value="{{newItem.initialprice}}" maxlength=5 ></paper-input>
 
       <br>
-      <p class="paper-font-body2">The increment in the price of a bid.</p>
-      <paper-input id="incrementInput" placeholder="increment " value="{{newItem.increment}}"></paper-input>
+      <p class="paper-font-body2">The minimum increment in the price of a bid (an integer number is preferred):</p>
+      <paper-input id="incrementInput" placeholder="increment " value="{{newItem.increment}}" maxlength = 5></paper-input>
 
       <br>
-      <p class="paper-font-body2">The URL of your primary image file.</p>
+      <p class="paper-font-body2">The URL of your primary image file:</p>
       <paper-input id="urlInput" value="{{newItem.primary_url}}"></paper-input>
 
       <br>
