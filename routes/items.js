@@ -28,18 +28,27 @@ module.exports=function(app){
 
         var titles=[];
 
+        //the admin can see all of the items
+        //other users can see approved item only
+        var statusAllowed = (req.session && req.session.screen_name)?['waiting','approved']:['approved'];
+
         item_db.list({include_docs:true},function(err,body){
             if (!err){
 
                 //should contain _id with the title
                 body.rows.forEach(function(row){
                     var item = row.doc.doc
-                    console.log('doc as ' + JSON.stringify(item));
-                    var element = {};
-                    element.title = item.title;
-                    element.id = row.key;
-                    element.primary_url = item.primary_url;
-                    titles.push(element);
+
+                    if (statusAllowed.indexOf(item.status)>=0)
+                    {
+                        console.log('doc as ' + JSON.stringify(item));
+                        var element = {};
+                        element.title = item.title;
+                        element.id = row.key;
+                        element.primary_url = item.primary_url;
+                        element.status = item.status;
+                        titles.push(element);
+                    }
                 });
                 res.json({titles:titles});
             }

@@ -6,7 +6,9 @@ module.exports=function(app){
 
    app.get('/', function(req,res){
 
-       res.render('app/index.html');
+       var username = (req.session && req.session.screen_name)? req.session.screen_name:null;
+
+       res.render('app/index_original.html', {username: username});
 
    });
 

@@ -44,6 +44,60 @@ var server = app.listen(appEnv.port, appEnv.bind, function () {
   console.log('server starting on ' + appEnv.url);
 });
 
+app.locals.url = appEnv.url;
+
+var mongoDBuri;
+
+var initialMongoDBuri = function () {
+
+  var vcapServices;
+  if (process.env.VCAP_SERVICES)
+    vcapServices = JSON.parse(process.env.VCAP_SERVICES);
+
+  if (vcapServices && vcapServices.mongolab) {
+    mongoDBuri = vcapServices.mongolab[0].credentials.uri;
+  } else {
+
+    if (process.env.mongodb_uri)
+      mongoDBuri = process.env.mongodb_uri;
+  }
+}
+
+initialMongoDBuri();
+
+//for session management
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+
+app.use(session({
+  secret: "thisisasecret",
+  saveUninitialized: false,
+  resave: false,
+  store: new MongoStore({
+    url: mongoDBuri
+  }),
+  ttl: 5 * 24 * 60 * 60 //5 days expiration
+}));
+
+//set up logging for the request
+var mongoMorgan = require('mongo-morgan');
+
+app.use(mongoMorgan(mongoDBuri, 'combined', {
+  immediate: true,
+  collection: 'morganlogs'
+}));
+
+//twitter configuration
+var twitterConfig = {
+  consumer_key: process.env.twitter_consumer_key,
+  consumer_secret: process.env.twitter_consumer_secret,
+  access_token_key: process.env.twitter_access_token_key,
+  access_token_secret: process.env.twitter_access_token_secret
+};
+
+app.locals.twitterConfig = twitterConfig;
+
+
 var io = require('socket.io').listen(server);
 
 app.locals.io = io;
@@ -94,6 +148,7 @@ var set_app = function(){
   require('./routes/index')(app);
   require('./routes/items')(app);
   require('./routes/bidmessaging')(app);
+  require('./routes/signintwitters')(app);
 }
 
 function initializeDatabase(callback) {
@@ -136,6 +191,17 @@ function initializeDatabase(callback) {
 }
 
 initializeDatabase(set_app);
+
+var retrievingAdmin = function () {
+
+  if (process.env.admin) {
+    return process.env.admin.split(",");
+  }
+  return null;
+}
+
+app.locals.admin = retrievingAdmin();
+
 
 // catch 404 and forward to error handler
 /*
