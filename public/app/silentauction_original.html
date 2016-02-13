@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="FPSA School Council Silent Auction" />
-    <title>FPSA School Council Auction</title>
+    <title>FPSA School Council Fundraising</title>
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
     <!-- Chrome for Android theme color -->
@@ -53,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.7/socket.io.js"></script>
 
     <!-- will be replaced with elements/elements.vulcanized.html -->
-    <link rel="import" href="../app/elements/elements.html">
+    <link rel="import" href="elements/enlarged-elements.html">
     <!-- endreplace-->
 </head>
 
@@ -94,12 +94,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <iron-pages attr-for-selected="data-route" selected="home">
 
                     <section data-route="home" animateInitialSelection="true" id="home">
-                        <div class="subject"> Welcome! You may click an item in the following list to make your bid or add your item. </div>
+                        <div class="subject"> Welcome! <span> <%= screen_name %> </span> You may click an item in the following list to make your bid or add your item. </div>
 
                         <paper-material elevation="1">
                             <paper-button id="newItemPageButton">
                                 <iron-image style="width:320px; height:240px;" sizing="contain"
-                                            src='../images/newapp-icon.png'></iron-image>
+                                            src='../images/donate-button.png'></iron-image>
                                 <p> Donate an item </p>
                             </paper-button>
 

@@ -55,35 +55,11 @@ var newItem = {
 
         app.selected = null;
 
-        var scrollHeadPanel = document.querySelectorAll('paper-scroll-header-panel');
-
-        var categorySelect = document.querySelector('#categoryTab');
-
-        categorySelect.addEventListener('click', function (event) {
-
-            if (categorySelect.selected == 0) {
-
-                if (pages.selected == 'selecteditempage')
-                    leavingBiding(null);
-
-                if (pages.selected != 'home')
-                    goHome();
-            } else
-                if (categorySelect.selected == 1)
-                {
-                    pages.selected = "admin";
-                }
-
-        });
-
         var newItemPageButton = document.querySelector('#newItemPageButton');
 
         newItemPageButton.addEventListener('click', function(event){
             //switch to the add item page
-            app.newItem = newItem;
-
-            pages.selected = "additempage";
-
+            app.newItem = true;
         });
 
         var addItemAjax = document.querySelector('#addItemCall');
@@ -94,20 +70,6 @@ var newItem = {
             console.log("response from server" + JSON.stringify(e.detail.response));
             //after an item is added, the item list in the home page is
             //refreshed by the response
-
-            if (e.detail.response.status)
-            {
-                //invalid input
-                app.toaster= e.detail.response.status;
-                toaster.show();
-                return;
-            }
-
-            var results = e.detail.response.titles;
-
-            app.listedItems = results;
-
-            pages.selected = "home"
 
             //scrollup
             scrollHeadPanel[0].scrollToTop(true);
@@ -168,7 +130,7 @@ var newItem = {
 
             //retrieve the item with the id
             //and open the item page
-            openItemPage(id);
+            app.listedItems.contribute=true;
         };
 
         var socket;
