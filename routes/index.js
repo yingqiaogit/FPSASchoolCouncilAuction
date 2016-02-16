@@ -6,28 +6,29 @@ module.exports=function(app){
 
    app.get('/', function(req,res){
 
-       var username = (req.session && req.session.screen_name)? req.session.screen_name:null;
+       var screenName = (req.session && req.session.screen_name)? req.session.screen_name:null;
 
-       res.render('app/index_original.html', {username: username});
+       console.log("screenName is " + screenName);
 
+       res.render('app/index_original.html', {screen_name: screenName});
    });
 
-   app.get('/giftregistry', function(req,res) {
+   app.get('/home/:page', function(req,res) {
 
-       var username = (req.session && req.session.screen_name) ? req.session.screen_name : null;
+       var screenName = (req.session && req.session.screen_name) ? req.session.screen_name : null;
 
-       res.render('app/giftregistry_original.html', {username: username});
+       var page = req.params.page;
+
+       if (page == 'giftregistry') {
+           console.log("retrieve the gift page");
+           res.render('app/giftregistry_original.html', {screen_name: screenName});
+       }
+       if (page == 'silentauction') {
+           console.log("retrieve the auction page");
+           res.render('app/silentauction_original.html', {screen_name: screenName});
+       }
 
    });
-
-    app.get('/silentauction', function(req,res) {
-
-        var username = (req.session && req.session.screen_name) ? req.session.screen_name : null;
-
-        res.render('app/silentauction_original.html', {username: username});
-
-    });
-
 
 };
 

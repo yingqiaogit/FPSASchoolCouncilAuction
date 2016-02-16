@@ -47,8 +47,6 @@ module.exports= function(app) {
 
                 //store the user tokens in the oauthStore temporarily
                 usertoken.token_secret = oauth.token_secret;
-                //the client token is a uuid
-                usertoken.client_token = uuid.v4();
                 oauthStore[oauth.token] = usertoken;
 
                 //redirect to the Twitter sign in URL
@@ -132,22 +130,12 @@ module.exports= function(app) {
             }
             else {
 
-                var twitteruserinfo = {
-                    user_id: results.user_id,
-                    user_token: oauthStore[oauth_token].client_token
-                }
+                //add session management here:
+                //currently the session id is the user's user_token
+                //session id and user token will be separated eventually
+                console.log(JSON.stringify(results));
 
-                delete  oauthStore[oauth_token];
-                console.log('oauthStore' + JSON.stringify(oauthStore));
-                console.log('twitteruserinfo' + JSON.stringify(twitteruserinfo));
-
-                //if the document of the user is not in the signindb then write it in to the signindb
-                //verify if the user exists in the db or not
-
-                res.redirect("/signintwitters/step3?session=" + twitteruserinfo.user_token
-                    + "&screen_name=" + results.screen_name)
-
-                console.log("the user " + results.user_id + " is signed in");
+                res.redirect("/signintwitters/step3?screen_name=" + results.screen_name);
 
             }
         });
@@ -155,26 +143,30 @@ module.exports= function(app) {
 
     app.get('/signintwitters/step3', function (req, res) {
 
-        console.log("at siginstep3, user's session_token is" + sess.session_token);
-        console.log("at siginstep3, user's screen_name is" + sess.screen_name);
+        var screen_name = req.query.screen_name;
+        console.log("the user " + screen_name + " is signed in");
 
-        //if there is no survey data
+        var sess = req.session;
+
+        if (sess)
+            sess.screen_name =screen_name;
+        else
+            console.log("session is not defined");
 
         //if the user signning up just now
-        console.log("user " + sess.session_token + " " + sess.screen_name + " has logged in" );
+        console.log("user " + screen_name + " has logged in" );
 
-        if (app.locals.admin && app.locals.admin.indexOf(sess.screen_name) >=0 )
+        /*if (app.locals.admin && app.locals.admin.indexOf(screen_name) >=0 )
         {
-
-            var sess = req.session;
 
             //add session management here:
             //currently the session id is the user's user_token
             //session id and user token will be separated eventually
-            sess.session_token = req.query.session;
-            sess.screen_name = req.query.screen_name;
+            var sess = req.session;
 
-        }
+            sess.screen_name =screen_name;
+
+        }*/
 
         res.redirect('/');
 
@@ -182,16 +174,12 @@ module.exports= function(app) {
 
     app.get('/signintwitters/logout', function (req, res) {
 
-        var session_token = req.session.session_token;
-        var screen_name = req.session.screen_name;
-
         req.session.destroy(function(err){
             if(err){
                 console.log(err);
             }
             else
             {
-                console.log("user " + session_token + " " + screen_name + " has logged out" );
                 res.redirect('/');
             }
         });

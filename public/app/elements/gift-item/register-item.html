@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 
-<dom-module id="contribution-item">
+<dom-module id="register-item">
   <style>
     :host {
       display: block;
@@ -25,26 +25,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <paper-material elevation="1">
-      <p class="paper-font-body2">Thanks for your gift! </p>
 
       <p class="paper-font-body2">Amount of your contribution (e.g., 0.5, 1, 1.5...):
-        <span> {{contribution.amount}}</span> </p>
-
-      <p class="paper-font-body2">Your email
-      <paper-input value="{{contribution.email}}"></paper-input>
+        <paper-input value="{{register.amount}}"></paper-input>
       </p>
-    </paper-material>
+
+      <p class="paper-font-body2">Your email:
+          <paper-input value="{{register.email}}"></paper-input>
+      </p>
+
 
   </template>
 
   <script>
     (function() {
       Polymer({
-        is: 'contribution-item',
+        is: 'register-item',
 
         properties: {
-          contribution:{
+          register:{
             type: Object,
             notify: true
           }

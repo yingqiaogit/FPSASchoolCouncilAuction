@@ -5,6 +5,6 @@ applications:
   domain: mybluemix.net
   name: FPSASchoolCouncilAuction
   host: fpsaschoolcouncilauction
-  disk_quota: 1024M
+  disk_quota: 512M
   services:
   - Cloudant NoSQL DB-3o

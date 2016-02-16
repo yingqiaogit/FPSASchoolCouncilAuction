@@ -53,7 +53,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.7/socket.io.js"></script>
 
     <!-- will be replaced with elements/elements.vulcanized.html -->
-    <link rel="import" href="elements/minimum-elements.html">
+    <link rel="import" href="../app/elements/giftregistry-elements.html">
     <!-- endreplace-->
 </head>
 
@@ -94,47 +94,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <iron-pages attr-for-selected="data-route" selected="home">
 
                     <section data-route="home" animateInitialSelection="true" id="home">
-                        <div class="subject"> Welcome! <span> <%= screen_name %> </span> You may click an item in the following list to make your contribution. </div>
-
-                        <paper-material elevation="1">
-                            <paper-button id="newItemPageButton">
-                                <iron-image style="width:320px; height:240px;" sizing="contain"
-                                            src='../images/new-item-light-red.png'></iron-image>
-                                <p> Donate an item </p>
-                            </paper-button>
-
-                            <template is="dom-repeat" items="{{listedItems}}">
-
-                                <template is="dom-if" if="{{item.list}}">
-                                    <paper-button class="itemSelector" id = "{{item.id}}" on-click = "itemSelectorClick">
-                                        <iron-image style="width:320px; height:240px;" sizing="contain"
-                                                src="{{item.primary_url}}"></iron-image>
-                                        <p> {{item.title}} </p>
-                                        <p> {{item.price}} </p>
-                                        <p> {{item.num}} <span> remaining </span></p>
-                                    </paper-button>
-                                </template>
-
-                                <template is="dom-if" if="{{!item.list}}">
+                        <div class="subject"> Welcome! <span id="screenName" class="subject"><%= screen_name %></span>
+                            You may click a gift in the following list to make your contribution. </div>
 
 
-                                </template>
+                        <template is="dom-repeat" items="{{giftList}}">
 
-                            </template>
+                                 <div style="width:400px; height:500px;" id= "{{item.id}}">
 
-                        </paper-material>
+                                     <paper-material elevation="1">
+                                        <template is="dom-if" if="{{item.display}}">
+                                            <paper-button on-click = "giftSelectorClick">
+                                                <gift-display gift="{{item}}"></gift-display>
+                                            </paper-button>
+                                        </template>
+
+                                         <template is="dom-if" if="{{item.registered}}">
+                                             <p class="subject">Thanks for your gift!
+                                             </p>
+                                         </template>
+
+                                         <template is="dom-if" if="{{!item.display}}">
+                                            <register-item register="{{register}}" gift="{{item}}">
+                                            </register-item>
+                                            <paper-button on-click = "giftRegisterClick" raised>
+                                            Register!</paper-button>
+                                            <paper-button on-click = "leaveRegisterClick" raised>
+                                                Nop!</paper-button>
+                                        </template>
+                                     </paper-material>
+
+                                </div>
+
+                         </template>
 
                     </section>
 
-                    <iron-ajax method="POST" id="addItemCall" url="/items/submit" contentType="application/json" handle-as="json" debounce-duration="300">
+                    <iron-ajax method="POST" id="registerCall" url="/gifts/register" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
 
-                    <iron-ajax method="POST" id="contributeCall" url="/items/bid" contentType="application/json" handle-as="json" debounce-duration="300">
+                    <iron-ajax method="GET" id="retrieveListCall" url="/gifts/list" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
-
-                    <iron-ajax method="GET" id="retrieveListCall" url="/items/list" contentType="application/json" handle-as="json" debounce-duration="300">
-                    </iron-ajax>
-
 
                 </iron-pages>
 
@@ -142,7 +142,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-scroll-header-panel>
 
     </template>
-    <!-- build:js scripts/app.js -->
+    <!-- build:js scripts/silentauction_app.js -->
     <script src="../app/scripts/giftregistry_app.js "></script>
     <!-- endbuild-->
 </body>

@@ -46,45 +46,62 @@ var server = app.listen(appEnv.port, appEnv.bind, function () {
 
 app.locals.url = appEnv.url;
 
-var mongoDBuri;
+var redisParms={};
 
-var initialMongoDBuri = function () {
+var initialRedisParms = function () {
 
   var vcapServices;
   if (process.env.VCAP_SERVICES)
     vcapServices = JSON.parse(process.env.VCAP_SERVICES);
 
-  if (vcapServices && vcapServices.mongolab) {
-    mongoDBuri = vcapServices.mongolab[0].credentials.uri;
+  if (vcapServices && vcapServices.rediscloud) {
+
+    var credentials = vcapServices.rediscloud[0].credentials;
+    redisParms.hostname = credentials.hostname;
+    redisParms.password = credentials.password;
+    redisParms.port = credentials.port;
   } else {
 
-    if (process.env.mongodb_uri)
-      mongoDBuri = process.env.mongodb_uri;
+    if (process.env.redis_hostname && process.env.redis_password && process.env.redis_port)
+    {
+       redisParms.hostname = process.env.redis_hostname;
+       redisParms.password = process.env.redis_password;
+       redisParms.port = process.env.redis_port;
+    }
   }
 }
 
-initialMongoDBuri();
+initialRedisParms();
 
 //for session management
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
 
-app.use(session({
+var session = require('express-session');
+//var RedisStore = require('connect-redis')(session);
+//var redis = require('redis');
+//var redisClient = redis.createClient();
+
+var cookieParser = require('cookie-parser');
+app.use(cookieParser("secretOfCookie"));
+
+/*app.use(session({
   secret: "thisisasecret",
   saveUninitialized: false,
   resave: false,
-  store: new MongoStore({
-    url: mongoDBuri
+  store: new RedisStore({
+    host: redisParms.hostname,
+    port: redisParms.port,
+    client: redisClient
   }),
   ttl: 5 * 24 * 60 * 60 //5 days expiration
 }));
+*/
 
-//set up logging for the request
-var mongoMorgan = require('mongo-morgan');
+//memory store here:
 
-app.use(mongoMorgan(mongoDBuri, 'combined', {
-  immediate: true,
-  collection: 'morganlogs'
+app.use(session({
+  secret: "this is a secret",
+  saveUninitialized: false,
+  resave: false,
 }));
 
 //twitter configuration
@@ -96,7 +113,6 @@ var twitterConfig = {
 };
 
 app.locals.twitterConfig = twitterConfig;
-
 
 var io = require('socket.io').listen(server);
 
@@ -114,6 +130,10 @@ var cloudant_db= {
    dbs: {
      items: {
        name: "items",
+       handler: null
+     },
+     gifts:{
+       name: "gifts",
        handler: null
      }
    }
@@ -147,6 +167,7 @@ var set_app = function(){
   app.locals.dbs = cloudant_db.dbs;
   require('./routes/index')(app);
   require('./routes/items')(app);
+  require('./routes/gifts')(app);
   require('./routes/bidmessaging')(app);
   require('./routes/signintwitters')(app);
 }

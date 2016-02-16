@@ -6,12 +6,9 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
-
-var newItem = {
-    title: null,
-    description:null,
-    initialprice: null,
-    increment: null
+var newRegister={
+  amount: null,
+  email: null
 };
 
 (function () {
@@ -34,365 +31,139 @@ var newItem = {
 
     window.addEventListener('WebComponentsReady', function () {
 
-        app.onMenuSelect = function () {
-            var drawerPanel = document.querySelector('#paperDrawerPanel');
-            if (drawerPanel.narrow) {
-                drawerPanel.closeDrawer();
-            }
-        };
+        var screenNameCom = document.querySelector('#screenName');
 
-        var pages = document.querySelector('iron-pages');
+        if (screenNameCom.textContent) {
+            app.admin = true;
+        }
 
-        app.switch = function () {
-            pages.selectNext();
-        };
-
-        /*
-        app.addEventListener('switcher', function (e) {
-            app.switch();
-        });
-        */
-
-        app.selected = null;
-
-        var newItemPageButton = document.querySelector('#newItemPageButton');
-
-        newItemPageButton.addEventListener('click', function(event){
-            //switch to the add item page
-            app.newItem = true;
-        });
-
-        var addItemAjax = document.querySelector('#addItemCall');
-
-        var toaster = document.querySelector('#toaster');
-
-        addItemAjax.addEventListener('response', function (e) {
-            console.log("response from server" + JSON.stringify(e.detail.response));
-            //after an item is added, the item list in the home page is
-            //refreshed by the response
-
-            //scrollup
-            scrollHeadPanel[0].scrollToTop(true);
-        });
-
-        var addItemSubmission = function () {
-
-            //submit the item
-            var submittedItem = app.newItem;
-
-            addItemAjax.body = JSON.stringify(app.newItem);
-
-            console.log(addItemAjax.body);
-
-            addItemAjax.generateRequest();
-        };
-
-        app.addItemPressed = function(){
-            var reg = /\[|\]/;
-
-            if (!app.newItem.title || !app.newItem.description)
-            {
-                app.toaster= "Title or Description should not be empty";
-                toaster.show();
-                return;
-            }
-
-            if (app.newItem.title.match(reg)||app.newItem.description.match(reg)){
-                app.toaster = "Please remove special characters such as [ or ]"
-                toaster.show();
-                return;
-            }
-
-            addItemSubmission();
-
-        };
-
-        var listedItems;
+        var giftList;
 
         var retrieveListAjax = document.querySelector('#retrieveListCall');
 
         retrieveListAjax.addEventListener('response',function(event){
 
-            listedItems = event.detail.response.titles;
+            giftList = event.detail.response.gifts;
+            /*
+             *   gifts= [
+             *   {
+             *      id:"cc40d0c389cb43e8fd6a641c9a1d24bf",       ,
+             *      "title": "chair",
+             *      "value": "80$",
+             *      "number": "30",
+             *      "remain": "29",
+             *      "primary_url": "http://www.ikea.com/PIAimages/0376673_PE553886_S3.JPG"
+             *   }
+             *   ]
+             */
 
-            console.log("titles:" + JSON.stringify(listedItems));
-            app.listedItems = listedItems;
+            giftList.forEach(function(gift, index){
+               gift.index = index;
+               gift.display = true;
+               gift.registered = false;
+
+            });
+
+            console.log("titles:" + JSON.stringify(giftList));
+
+
+            app.giftList = giftList;
         });
 
-        var openItemList=function(){
+        var openGiftList=function(){
             retrieveListAjax.generateRequest();
         };
 
-        app.itemSelectorClick= function(event){
+        openGiftList();
+
+        var selected;
+
+        app.giftSelectorClick= function(event){
+
+            console.log("The item is pressed");
+
+            var item = event.model.item;
+
+            item.display = false;
+            var pos = item.index;
+
+            giftList[pos].display = false;
+
+            giftList[pos].registered = false;
+            //retrieve the item with the id
+            //and open the item page
+            app.giftList = JSON.parse(JSON.stringify(giftList));
+            app.register = JSON.parse(JSON.stringify(newRegister));
+        };
+
+        app.leaveRegisterClick= function(event){
+
+            console.log("The item is pressed");
+
+            var item = event.model.item;
+
+            item.display = false;
+            var pos = item.index;
+
+            giftList[pos].display = true;
+
+            giftList[pos].registered = false;
+            //retrieve the item with the id
+            //and open the item page
+            app.giftList = JSON.parse(JSON.stringify(giftList));
+            app.register = JSON.parse(JSON.stringify(newRegister));
+        };
+
+        var registerAjax=document.querySelector('#registerCall');
+
+        app.giftRegisterClick= function(event){
+
             console.log("The item is pressed");
             var item = event.model.item;
-            var id = item.id;
 
             //retrieve the item with the id
             //and open the item page
-            app.listedItems.contribute=true;
-        };
+            //submit the contribution here
 
-        var socket;
+            var id = item.id;
 
-        var bidding_price_queue=[];
-
-        var resetItemPage= function(){
-
-            app.selected = null;
-            resetBidingStatus();
-            bidding_price_queue=[];
-        };
-
-         var openItemPage= function(id){
-
-            resetItemPage();
-
-            socket = io.connect({timeout:5000});
-
-            socket.emit('joinroom', id);
-
-            socket.on('statusupdate', function(status){
-               //if the item is not retrieved yet
-               //store the received price in a local queue;
-                var bid = status.lastbid;
-
-
-                /*     lastbid:
-                 *        {
-                 *           price:
-                 *           time:
-                 *        }
-                 */
-                console.log("received status update " + JSON.stringify(status));
-
-                if (app.selected == null) {
-                   bidding_price_queue.push(bid);
-               }else {
-                    if (bid.time == bidInfoGrid.data.source[bidInfoGrid.data.source.length - 1].time)
-                        return;
-
-                    var selected = JSON.parse(JSON.stringify(app.selected));
-
-                    selected.currentprice = bid.price;
-
-                    selected.bids.push(bid);
-
-                    app.selected = selected;
-
-                    bidInfoGrid.data.source = app.selected.bids;
-
-                    bidInfoGrid.columns[0].renderer = function (cell) {
-                        cell.element.innerHTML = cell.row.index;
-                    }
-                }
-            });
-
-            retrieveItem(id);
-            setBidingState("init");
-            pages.selected = "selecteditempage";
-
-        };
-
-        var bidingstatus={
-            init: false,
-            biding:false,
-            waiting:false
-        };
-
-        var setBidingState = function(state){
-            resetBidingStatus();
-            bidingstatus[state] = true;
-            updateAppBidingStatus();
-        };
-
-        var updateAppBidingStatus = function(){
-            app.initstate= bidingstatus.init;
-            app.bidingstate = bidingstatus.biding;
-            app.waitingstate = bidingstatus.waiting;
-        };
-
-        var isBidingAt = function(state){
-            return (bidingstatus[state] == true);
-        };
-
-        var resetBidingStatus = function(){
-            Object.keys(bidingstatus).forEach(function(key){
-                bidingstatus[key]= false;
-            });
-            updateAppBidingStatus();
-        };
-
-        var retrieveItemAjax = document.querySelector('#retrieveItemCall')
-
-        var retrieveItem=function(id){
-
-            retrieveItemAjax.url = '/items/found?id='+id;
-
-            retrieveItemAjax.generateRequest();
-        }
-
-        var bidInfoGrid;
-
-        retrieveItemAjax.addEventListener('response', function(event){
-
-            var selected = event.detail.response.selected;
-
-            app.selected = selected;
-
-            bidInfoGrid = document.querySelector('#bidinfogrid');
-
-            if (!selected.bids) {
-                bidInfoGrid.data.source = [];
-                return;
+            var registration = {
+                id: id,
+                pos: item.index,
+                register: app.register
             }
 
-            var bids = selected.bids;
+            //submit the registration
+            registerAjax.body = JSON.stringify(registration);
 
-            if (!bidding_price_queue) {
-                //find the first price not in bids
-                var start = -1;
+            console.log(registerAjax.body);
 
-                if (bids)
-                    bidding_price_queue.forEach(function(price, index){
-                        if (price.time == bids[bids.length-1].formatedtime){
-                            start = index;
-                        }
+            registerAjax.generateRequest();
 
-                    });
+            var pos = item.index
 
-                //pop out the prices existing in bids from bidding_price_queue
-                var pos = 0;
-                while (pos<=start) {
-                    bidding_price_queue.pop();
-                    pos++;
-                }
+            giftList[pos].display = true;
+            giftList[pos].registered = true;
 
-                //pop out the remaining prices into bids
-                while (bidding_price_queue.length > 0)
-                        bids.push(bidding_price_queue.pop());
+            //retrieve the item with the id
+            //and open the item page
+            app.giftList = JSON.parse(JSON.stringify(giftList));
 
-                app.selected.currentprice = bids[bids.length-1].price;
+            app.register = JSON.parse(JSON.stringify(newRegister));
+        };
 
-            }
+        registerAjax.addEventListener('response', function(event){
 
-            console.log("bids as " + JSON.stringify(bids));
+            var remain = event.detail.response.remain;
 
-            bidInfoGrid.data.source = bids;
+            var pos = event.detail.response.pos;
 
-            bidInfoGrid.columns[0].renderer = function (cell) {
-                cell.element.innerHTML = cell.row.index;
-            }
-        });
-
-        var titleSelector = document.querySelector('#titleselector');
-
-        titleSelector.addEventListener('iron-select', function(event){
-
-            console.log(titleSelector.selected);
-
-            var id = listedItems[titleSelector.selected].key;
-
-            //compose a call to retrieve the found list
-            console.log("selected id is " + id);
-
-            app.retrieveFoundListUrl = '/query/found?id='+id;
-
-            retrieveItemAjax.generateRequest();
+            giftList[pos].remain = remain;
+            //retrieve the item with the id
+            //and open the item page
+            app.giftList = JSON.parse(JSON.stringify(giftList));
 
         });
-
-        app.biding = function(event){
-            //connected to the socket at the server
-            //display a server message on console
-
-            socket.emit('joinbid', app.selected.id);
-
-            setBidingState('waiting');
-
-            socket.on('statusupdate', function(status){
-
-                if (isBidingAt('init'))
-                    return;
-
-                var myid = socket.io.engine.id;
-
-                console.log("status of the queue is "+ JSON.stringify(status));
-
-                console.log("my id is " + myid + " my index is " + status.queue.indexOf(myid));
-
-                if (status.queue[0] == myid) {
-
-                    var local_biding_form = {
-                        price: Number(status.lastbid.price) + Number(app.selected.increment),
-                        email: null
-                    };
-
-                    app.bidingForm = local_biding_form;
-
-                    setBidingState('biding');
-                }else {
-                    //display the waiting queue
-
-                    var waiting = [];
-
-                    status.queue.forEach(function(id, index){
-                        if (id == myid)
-                            waiting.push(true);
-                        else
-                            waiting.push(false);
-                    });
-                    app.waitingqueue = waiting;
-                    setBidingState('waiting');
-
-                }
-            })
-        };
-
-        app.leavebiding = function(event){
-            leavingBiding(null);
-        };
-
-        var goHome = function(){
-            if (socket) {
-                socket.emit('leaveroom', null);
-            }
-
-            resetItemPage();
-            openItemList();
-            pages.selected = "home";
-        };
-
-        //retrieve the item list first
-        goHome();
-
-        var leavingBiding = function(bid){
-
-            if (!isBidingAt('init')) {
-
-                if (socket) {
-                    socket.emit('leavebid', bid);
-                }
-
-                setBidingState('init');
-            }else{
-
-                goHome();
-            }
-        };
-
-        app.submitbid = function(event){
-
-            var bid = {};
-
-            var bid_doc={
-                id:app.selected.id,
-                price:app.bidingForm.price,
-                email:app.bidingForm.email
-            };
-
-            leavingBiding(bid_doc);
-        };
 
 
     });
