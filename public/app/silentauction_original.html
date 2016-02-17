@@ -99,17 +99,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-material elevation="1">
                             <paper-button id="newItemPageButton">
                                 <iron-image style="width:320px; height:240px;" sizing="contain"
-                                            src='../images/donate-button.png'></iron-image>
+                                                src='../images/donate-button.png'></iron-image>
                                 <p> Donate an item </p>
                             </paper-button>
 
                             <template is="dom-repeat" items="{{listedItems}}">
-                                <paper-button class="itemSelector" id = "{{item.id}}" on-click = "itemSelectorClick">
-                                    <iron-image style="width:320px; height:240px;" sizing="contain"
+
+                                <paper-card heading="{{item.title}}" >
+                                    <div class="card-content">
+                                        <p> worth $<span>{{item.facevalue}}</span></p>
+                                        <p> now $<span>{{item.facevalue}}</span></p>
+                                        <template is="dom-if" if="{{admin}}">
+                                            <p class="subject">{{item.status}}</p>
+                                        </template>
+                                    </div>
+                                    <div class="card-actions">
+                                        <paper-button on-click = "itemSelectorClick">Bidding</paper-button>
+                                    </div>
+                                </paper-card>
+
+
+                                <paper-button class="itemSelector"  style="width:400px; height:300px;">
+                                    <iron-image style="width:200px; height:150px;" sizing="contain"
                                                 src="{{item.primary_url}}"></iron-image>
-                                    <p> {{item.title}} </p>
-                                    <p> {{item.faceValue}}</p>
-                                    <p> {{item.currentPrice}}</p>
+                                    <p> Title: <span>{{item.title}}</span></p>
+                                    <p> Face value: <span>{{item.facevalue}}</span></p>
+                                    <p> Current price: <span>{{item.currentprice}}</span></p>
+                                    <template is="dom-if" if="{{admin}}">
+                                        <p class="subject">{{item.status}}</p>
+                                    </template>
                                 </paper-button>
                             </template>
 
@@ -120,7 +138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <section data-route="additempage" animateInitialSelection="true" id="additempage">
                         <div class="subject"> Please name your item and describe it as well </div>
 
-                        <add-item new-item="{{newItem}}"></add-item>
+                        <add-item new-item="{{newItem}}" ></add-item>
 
                         <paper-button raised = "true" on-click="addItemPressed"> Submit </paper-button>
 
@@ -148,19 +166,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         </paper-material>
 
-                        <template is="dom-if" if="{{init}}">
+                        <template is="dom-if" if="{{isAt(itemstate,'init')}}">
                             <paper-button raised = "true" on-click="biding"> Bid </paper-button>
                             <paper-button raised = "true" on-click="leavebiding"> Leave </paper-button>
+                            <template is="dom-if" if="{{isEqual(selected.status, 'Require Approval')}}">
+                                <paper-button raised = "true" on-click="approving" style="color: red;"> Approve </paper-button>
+                            </template>
                         </template>
 
-                        <template is="dom-if" if="{{biding}}">
+                        <template is="dom-if" if="{{isAt(itemstate,'bidding')}}">
                             <div class="subject">It is your turn to make a bid for the item now</div>
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
                             <paper-button raised = "true" on-click="submitbid"> Bid! </paper-button>
                             <paper-button raised = "true" on-click="leavebiding"> Leave! </paper-button>
                         </template>
 
-                        <template is="dom-if" if="{{waiting}}">
+                        <template is="dom-if" if="{{isAt(itemstate,'waiting')}}">
                             <div class="subject">You are waiting in the line for the item now</div>
                             <paper-icon-button icon="assignment" disabled="true"></paper-icon-button>
 
@@ -211,6 +232,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <iron-ajax method="POST" id="bidItemCall" url="/items/bid" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
 
+                    <iron-ajax method="POST" id="approveItemCall" url="/items/approve" contentType="application/json" handle-as="json" debounce-duration="300">
+                    </iron-ajax>
+
                     <iron-ajax method="GET" id="retrieveListCall" url="/items/list" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
 
@@ -225,7 +249,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </template>
     <!-- build:js scripts/silentauction_app.js -->
-    <script src="scripts/silentauction_app.js "></script>
+    <script src="../app/scripts/silentauction_app.js "></script>
     <!-- endbuild-->
 </body>
 
