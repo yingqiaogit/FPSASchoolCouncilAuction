@@ -24,13 +24,13 @@ module.exports=function(app){
         });
     };
 
-    var retrieve_items = function(res){
+    var retrieve_items = function(req,res){
 
         var titles=[];
 
         //the admin can see all of the items
         //other users can see approved item only
-        var statusAllowed = (req.session && req.session.screen_name)?['waiting','approved']:['approved'];
+        var statusAllowed = (req.session && req.session.screen_name)?['Require Approval','Approved']:['Approved'];
 
         item_db.list({include_docs:true},function(err,body){
             if (!err){
@@ -41,12 +41,14 @@ module.exports=function(app){
 
                     if (statusAllowed.indexOf(item.status)>=0)
                     {
-                        console.log('doc as ' + JSON.stringify(item));
                         var element = {};
                         element.title = item.title;
                         element.id = row.key;
                         element.primary_url = item.primary_url;
                         element.status = item.status;
+                        element.facevalue = item.facevalue;
+                        element.currentprice = item.currentprice;
+                        console.log('element as ' + JSON.stringify(element));
                         titles.push(element);
                     }
                 });
@@ -61,7 +63,7 @@ module.exports=function(app){
     app.get('/items/list',function(req,res){
 
        //returns the _id and titles
-       retrieve_items(res);
+       retrieve_items(req,res);
     });
 
     //retrieve the doc with the _id
@@ -79,8 +81,7 @@ module.exports=function(app){
 
                 var selected = {};
                 selected = extend(body.doc,{id: body._id});
-                if (!body.doc.currentprice)
-                    body.doc.currentprice = Number(body.doc.initialprice);
+
                 if (body.bids) {
                     var bids = [];
                     body.bids.forEach(function (current) {
@@ -100,6 +101,38 @@ module.exports=function(app){
 
         } );
     });
+
+    app.post('/items/approve', function(req,res){
+        //bid information is contained in the request body
+        var approval_doc = JSON.parse(Object.keys(req.body)[0]);
+        //retrieve the item from the db
+        console.log("approve item as " + JSON.stringify(approval_doc));
+        var key = approval_doc.id;
+        var status = approval_doc.status;
+
+        //update the status of the item
+        item_db.get(key, {revs_info:true}, function(err,body){
+            if (!err){
+                //return the found list of the doc
+                console.log('body as' + JSON.stringify(body));
+
+                body.doc.status = status;
+                //store the document back to the server
+
+                item_db.insert(body, function(err,body){
+                    if(!err)
+                        res.status(200).send({status:"ok"});
+                    else
+                        res.status(404).send({status: err});
+                });
+
+            }else {
+                res.status(404).send({status: err});
+            }
+        } );
+
+    });
+
 
     app.post('/items/bid', function(req,res){
         //bid information is contained in the request body

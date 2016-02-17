@@ -8,10 +8,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 var newItem = {
-    title: null,
-    description:null,
-    initialprice: null,
-    increment: null
 };
 
 (function () {
@@ -52,6 +48,14 @@ var newItem = {
             app.switch();
         });
         */
+        app.admin = false;
+
+        var screenName = document.querySelector('#screenName');
+
+        if (screenName.textContent) {
+            console.log(screenName.textContent);
+            app.admin = true;
+        }
 
         app.selected = null;
 
@@ -64,7 +68,7 @@ var newItem = {
             if (categorySelect.selected == 0) {
 
                 if (pages.selected == 'selecteditempage')
-                    leavingBiding(null);
+                    leaveBidding(null);
 
                 if (pages.selected != 'home')
                     goHome();
@@ -118,7 +122,9 @@ var newItem = {
             //submit the item
             var submittedItem = app.newItem;
 
-            addItemAjax.body = JSON.stringify(app.newItem);
+            submittedItem.status = 'Require Approval';
+
+            addItemAjax.body = JSON.stringify(submiitedItem);
 
             console.log(addItemAjax.body);
 
@@ -178,7 +184,7 @@ var newItem = {
         var resetItemPage= function(){
 
             app.selected = null;
-            resetBidingStatus();
+            app.itemstate='init';
             bidding_price_queue=[];
         };
 
@@ -227,38 +233,25 @@ var newItem = {
             });
 
             retrieveItem(id);
-            setBidingState("init");
+            setBiddingState('init');
             pages.selected = "selecteditempage";
 
         };
 
-        var bidingstatus={
-            init: false,
-            biding:false,
-            waiting:false
+        var setBiddingState = function(state){
+            app.itemstate = String(state);
         };
 
-        var setBidingState = function(state){
-            resetBidingStatus();
-            bidingstatus[state] = true;
-            updateAppBidingStatus();
+        var isBiddingAt = function(state){
+            return app.itemstate === state;
         };
 
-        var updateAppBidingStatus = function(){
-            app.initstate= bidingstatus.init;
-            app.bidingstate = bidingstatus.biding;
-            app.waitingstate = bidingstatus.waiting;
+        app.isAt=function(name,state){
+            return isBiddingAt(state);
         };
 
-        var isBidingAt = function(state){
-            return (bidingstatus[state] == true);
-        };
-
-        var resetBidingStatus = function(){
-            Object.keys(bidingstatus).forEach(function(key){
-                bidingstatus[key]= false;
-            });
-            updateAppBidingStatus();
+        app.isEqual=function(status, state){
+            return status === state;
         };
 
         var retrieveItemAjax = document.querySelector('#retrieveItemCall')
@@ -340,17 +333,40 @@ var newItem = {
 
         });
 
+        var approveItemAjax = document.querySelector('#approveItemCall');
+
+        app.approving= function(event){
+
+            var approval ={};
+            approval.id = app.selected.id;
+            approval.status = 'Approved';
+
+            approveItemAjax.body = JSON.stringify(approval);
+
+            console.log(approveItemAjax.body);
+
+            approveItemAjax.generateRequest();
+
+            var selected = JSON.parse(JSON.stringify(app.selected));
+
+            selected.status = 'Approved';
+
+            app.selected = JSON.parse(JSON.stringify(selected));
+
+        };
+
+
         app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
 
             socket.emit('joinbid', app.selected.id);
 
-            setBidingState('waiting');
+            setBiddingState('waiting');
 
             socket.on('statusupdate', function(status){
 
-                if (isBidingAt('init'))
+                if (isBiddingAt('init'))
                     return;
 
                 var myid = socket.io.engine.id;
@@ -368,7 +384,7 @@ var newItem = {
 
                     app.bidingForm = local_biding_form;
 
-                    setBidingState('biding');
+                    setBiddingState('bidding');
                 }else {
                     //display the waiting queue
 
@@ -380,15 +396,16 @@ var newItem = {
                         else
                             waiting.push(false);
                     });
+
                     app.waitingqueue = waiting;
-                    setBidingState('waiting');
+                    setBiddingState('waiting');
 
                 }
             })
         };
 
         app.leavebiding = function(event){
-            leavingBiding(null);
+            leaveBidding(null);
         };
 
         var goHome = function(){
@@ -404,15 +421,15 @@ var newItem = {
         //retrieve the item list first
         goHome();
 
-        var leavingBiding = function(bid){
+        var leaveBidding = function(bid){
 
-            if (!isBidingAt('init')) {
+            if (!isBiddingAt('init')) {
 
                 if (socket) {
                     socket.emit('leavebid', bid);
                 }
 
-                setBidingState('init');
+                setBiddingState('init');
             }else{
 
                 goHome();
@@ -429,7 +446,7 @@ var newItem = {
                 email:app.bidingForm.email
             };
 
-            leavingBiding(bid_doc);
+            leaveBidding(bid_doc);
         };
 
 

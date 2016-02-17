@@ -61,11 +61,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <span id="browser-sync-binding"></span>
     <template is="dom-bind" id="app">
 
-        <paper-scroll-header-panel class="flex" condenses>
+        <paper-scroll-header-panel class="flex" condenses >
 
 
             <!-- Main Toolbar -->
-            <paper-toolbar class="tall" id="mainToolbar">
+            <paper-toolbar class="tall" id="mainToolbar" >
 
                 <span class="flex"></span>
 
@@ -82,7 +82,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <!-- Toolbar icons -->
 
                 <paper-tabs id="categoryTab" selected="0" class="bottom self-end" style=" margin-bottom:0;color:white;font-size:14px;">
-                    <a href="/"><paper-tab>HOME</paper-tab> </a>
+                    <paper-tab link> <a href='/' style="color:white">HOME</a></paper-tab>
                 </paper-tabs>
 
                 <!--                <div class="bottom flex self-start"></div>-->
@@ -100,32 +100,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <template is="dom-repeat" items="{{giftList}}">
 
-                                 <div style="width:400px; height:500px;" id= "{{item.id}}">
-
-                                     <paper-material elevation="1">
-                                        <template is="dom-if" if="{{item.display}}">
-                                            <paper-button on-click = "giftSelectorClick">
+                            <div class="cards">
+                                <paper-card heading="{{item.title}}" style="width:300px; height:450px;"elevation = 5 animatedShadow="true">
+                                 <template is="dom-if" if="{{item.display}}">
+                                          <paper-button on-click = "giftSelectorClick">
                                                 <gift-display gift="{{item}}"></gift-display>
-                                            </paper-button>
-                                        </template>
+                                          </paper-button>
 
-                                         <template is="dom-if" if="{{item.registered}}">
-                                             <p class="subject">Thanks for your gift!
-                                             </p>
-                                         </template>
+                                 </template>
 
-                                         <template is="dom-if" if="{{!item.display}}">
+                                 <template is="dom-if" if="{{!item.display}}">
                                             <register-item register="{{register}}" gift="{{item}}">
                                             </register-item>
                                             <paper-button on-click = "giftRegisterClick" raised>
                                             Register!</paper-button>
                                             <paper-button on-click = "leaveRegisterClick" raised>
                                                 Nop!</paper-button>
-                                        </template>
-                                     </paper-material>
+                                 </template>
 
-                                </div>
-
+                                 <template is="dom-if" if="{{item.registered}}">
+                                         <p class="subject">Thanks for your gift!
+                                         </p>
+                                 </template>
+                                </paper-card>
+                            </div>
                          </template>
 
                     </section>

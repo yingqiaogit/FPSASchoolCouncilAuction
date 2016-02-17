@@ -91,32 +91,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 <template is="dom-if" if="{{admin}}">
                                     <a href="/signintwitters/logout" class="subject"> Logout </a>
                                 </template>
+                                <template is="dom-if" if="{{!admin}}">
+                                    <a href="/signintwitters/step1">
+                                        <iron-image
+                                            src="../images/sign-in-with-twitter-gray.png" >
+                                        </iron-image>
+                                    </a>
+                                </template>
                             </div>
                         </paper-material>
 
-                        <a href="/home/silentauction">
-                           <paper-button id = "silentauction" raised
-                               style="width:200px; height:50px;">
-                                  Silent Auction
-                           </paper-button>
-                        </a>
 
-                        <a href="/home/giftregistry">
-                            <paper-button id = "page=giftregistry" raised
-                                          style="width:200px; height:50px;">
-                                  Gift Registry
-                            </paper-button>
-                        </a>
+                        <paper-button raised >
+                            <a href="/home/silentauction">
+                                <iron-image  style="width:400px; height:100px;float:left" sizing="contain"
+                                            src="../images/silent-auction.png"></iron-image>
 
-                        <template is="dom-if" if="{{!admin}}">
-                            <paper-button id = "signinwithtwitter" raised
-                                          style="width:200px; height:50px;"
-                                          onclick="location.href='/signintwitters/step1'" >
-                                <iron-image
-                                         src="../images/sign-in-with-twitter-gray.png" >
-                                </iron-image>
-                            </paper-button>
-                        </template>
+                            </a>
+                        </paper-button>
+
+                        <paper-button raised >
+                            <a href="/home/giftregistry">
+                                <iron-image style="width:400px; height:100px;float:left" sizing="contain"
+                                            src="../images/gift-registry.png"></iron-image>
+                            </a>
+                        </paper-button>
+
 
                     </section>
                 </iron-pages>

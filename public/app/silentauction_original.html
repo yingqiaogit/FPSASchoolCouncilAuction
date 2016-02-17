@@ -82,7 +82,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <!-- Toolbar icons -->
 
                 <paper-tabs id="categoryTab" selected="0" class="bottom self-end" style=" margin-bottom:0;color:white;font-size:14px;">
-                    <a href="/"><paper-tab>HOME</paper-tab> </a>
+                    <paper-tab><a href="/" style="color:white">HOME</a></paper-tab>
                 </paper-tabs>
 
                 <!--                <div class="bottom flex self-start"></div>-->
@@ -96,42 +96,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <section data-route="home" animateInitialSelection="true" id="home">
                         <div class="subject"> Welcome! <span id="screenName" class = "subject"><%= screen_name %></span> You may click an item in the following list to make your bid or add your item. </div>
 
-                        <paper-material elevation="1">
-                            <paper-button id="newItemPageButton">
-                                <iron-image style="width:320px; height:240px;" sizing="contain"
-                                                src='../images/donate-button.png'></iron-image>
-                                <p> Donate an item </p>
-                            </paper-button>
+                        <div class = "cards">
+                        <paper-card heading="Donation" style="width:250px; height:400px;" elevation = 5 animatedShadow="true" >
+                            <iron-image style="width:250px; height:150px;" src='../images/donate-button.png' sizing="contain">
+                            </iron-image>
+
+                            <div class="card-content">
+                                <p> Thank you </p>
+
+                            </div>
+
+                            <div class="card-actions">
+                                <paper-button raised id = "newItemPageButton">Donating</paper-button>
+                            </div>
+                        </paper-card>
+                        </div>
 
                             <template is="dom-repeat" items="{{listedItems}}">
+                                <div class = "cards" >
+                                <paper-card heading="{{item.title}}"  style="width:250px; height:400px;" elevation = 5 animatedShadow="true" >
+                                    <iron-image src="{{item.primary_url}}" style="width:250px; height:150px;" sizing="contain">
+                                    </iron-image>
 
-                                <paper-card heading="{{item.title}}" >
                                     <div class="card-content">
                                         <p> worth $<span>{{item.facevalue}}</span></p>
-                                        <p> now $<span>{{item.facevalue}}</span></p>
+                                        <p> now $<span>{{item.currentprice}}</span></p>
                                         <template is="dom-if" if="{{admin}}">
                                             <p class="subject">{{item.status}}</p>
                                         </template>
                                     </div>
                                     <div class="card-actions">
-                                        <paper-button on-click = "itemSelectorClick">Bidding</paper-button>
+                                        <paper-button raised on-click = "itemSelectorClick">Bidding</paper-button>
                                     </div>
                                 </paper-card>
-
-
-                                <paper-button class="itemSelector"  style="width:400px; height:300px;">
-                                    <iron-image style="width:200px; height:150px;" sizing="contain"
-                                                src="{{item.primary_url}}"></iron-image>
-                                    <p> Title: <span>{{item.title}}</span></p>
-                                    <p> Face value: <span>{{item.facevalue}}</span></p>
-                                    <p> Current price: <span>{{item.currentprice}}</span></p>
-                                    <template is="dom-if" if="{{admin}}">
-                                        <p class="subject">{{item.status}}</p>
-                                    </template>
-                                </paper-button>
+                                </div>
                             </template>
 
-                        </paper-material>
+
 
                     </section>
 

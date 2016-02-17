@@ -106,3 +106,9 @@ input:invalid {
     @apply(--layout-flex);
     @apply(--layout-vertical);
 }
+
+.cards {
+    padding: 10px 10px;
+    float: left
+
+}

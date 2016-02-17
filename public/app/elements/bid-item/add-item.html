@@ -26,6 +26,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <paper-material elevation="1">
+      <div style="width:400px">
+
       <p class="paper-font-body2">Title of the item (required):</p>
       <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}" maxlength = 100></paper-input>
 
@@ -35,22 +37,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <br>
       <p class="paper-font-body2">The face value of the item (an integer number is preferred):</p>
-      <paper-input id="initialpriceInput" placeholder="initial price" value="{{newItem.initialprice}}" maxlength=5 ></paper-input>
+      <paper-input id="facevalueInput" placeholder="face value" value="{{newItem.facevalue}}" maxlength=5 ></paper-input>
+
+      <br>
+      <p class="paper-font-body2">The initial price of the item (an integer number is preferred):</p>
+      <paper-input id="initialpriceInput" placeholder="initial price" value="{{newItem.currentprice}}" maxlength=5 ></paper-input>
 
       <br>
       <p class="paper-font-body2">The minimum increment in the price of a bid (an integer number is preferred):</p>
       <paper-input id="incrementInput" placeholder="increment " value="{{newItem.increment}}" maxlength = 5></paper-input>
 
       <br>
-      <p class="paper-font-body2">The URL of your primary image file:</p>
-      <paper-input id="urlInput" value="{{newItem.primary_url}}"></paper-input>
-
-      <br>
-      <p class="paper-font-body2">Your email address</p>
+      <p class="paper-font-body2">Contact email address</p>
       <paper-input id="emailInput" value="{{newItem.email}}"></paper-input>
 
-    </paper-material>
+      <br>
+      <p class="paper-font-body2">The URL of your primary image file:</p>
+      <paper-input id="imageURLInput" value="{{newItem.primary_url}}"></paper-input>
 
+      <br>
+      <p class="paper-font-body2">The URL of your business website:</p>
+      <paper-input id="businessURLInput" value="{{newItem.business_url}}"></paper-input>
+    </div>
+    </paper-material>
   </template>
 
   <script>
