@@ -28,8 +28,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-material elevation="1">
       <div style="width:400px">
 
-      <p class="paper-font-body2">Title of the item (required):</p>
-      <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}" maxlength = 100></paper-input>
+      <p class="paper-font-body2">Title of the item (required, less than 18 characters):</p>
+      <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}" maxlength = 18></paper-input>
 
       <br>
       <p class="paper-font-body2">Description of the item (required): </p>
@@ -52,13 +52,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-input id="emailInput" value="{{newItem.email}}"></paper-input>
 
       <br>
-      <p class="paper-font-body2">The URL of your primary image file:</p>
+      <p class="paper-font-body2">The URL of item image file:</p>
       <paper-input id="imageURLInput" value="{{newItem.primary_url}}"></paper-input>
+     </div>
+    </paper-material>
 
-      <br>
-      <p class="paper-font-body2">The URL of your business website:</p>
-      <paper-input id="businessURLInput" value="{{newItem.business_url}}"></paper-input>
-    </div>
+    <div class = "subject"> The following information will be displayed in the Sponsor Section in the first page</div>
+    <paper-material elevation="1">
+      <div style="width:400px">
+        <p class="paper-font-body2">The name of your business (required, less than 18 characters):</p>
+          <paper-input id="titleInput" placeholder="my title" value="{{newItem.sponsor.name}}" maxlength = 18></paper-input>
+        <br>
+        <p class="paper-font-body2">The URL of your business logo image file:</p>
+          <paper-input id="businessURLInput" value="{{newItem.sponsor.logo_url}}"></paper-input>
+        <br>
+        <p class="paper-font-body2">The URL of your business website:</p>
+          <paper-input id="businessURLInput" value="{{newItem.sponsor.website_url}}"></paper-input>
+      </div>
     </paper-material>
   </template>
 

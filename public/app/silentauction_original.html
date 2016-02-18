@@ -97,7 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div class="subject"> Welcome! <span id="screenName" class = "subject"><%= screen_name %></span> You may click an item in the following list to make your bid or add your item. </div>
 
                         <div class = "cards">
-                        <paper-card heading="Donation" style="width:250px; height:400px;" elevation = 5 animatedShadow="true" >
+                        <paper-card heading="Donation" style="width:250px; height:450px;" elevation = 5 animatedShadow="true" >
                             <iron-image style="width:250px; height:150px;" src='../images/donate-button.png' sizing="contain">
                             </iron-image>
 
@@ -114,21 +114,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                             <template is="dom-repeat" items="{{listedItems}}">
                                 <div class = "cards" >
-                                <paper-card heading="{{item.title}}"  style="width:250px; height:400px;" elevation = 5 animatedShadow="true" >
-                                    <iron-image src="{{item.primary_url}}" style="width:250px; height:150px;" sizing="contain">
-                                    </iron-image>
+                                   <paper-card heading="{{item.title}}"  style="width:250px; height:450px;" elevation = 5 animatedShadow="true" >
+                                        <iron-image src="{{item.primary_url}}" style="width:250px; height:150px;" sizing="contain">
+                                        </iron-image>
 
-                                    <div class="card-content">
-                                        <p> worth $<span>{{item.facevalue}}</span></p>
-                                        <p> now $<span>{{item.currentprice}}</span></p>
-                                        <template is="dom-if" if="{{admin}}">
-                                            <p class="subject">{{item.status}}</p>
-                                        </template>
-                                    </div>
-                                    <div class="card-actions">
-                                        <paper-button raised on-click = "itemSelectorClick">Bidding</paper-button>
-                                    </div>
-                                </paper-card>
+                                        <div class="card-content">
+                                            <p> worth $<span>{{item.facevalue}}</span></p>
+                                            <p> now $<span>{{item.currentprice}}</span></p>
+                                            <template is="dom-if" if="{{hasStatus(item.status)}}">
+                                                <p class="subject">{{item.status}}</p>
+                                            </template>
+                                            <template is="dom-if" if="{{!hasStatus(item.status)}}">
+                                                <p class="subject">    </p>
+                                            </template>
+
+                                        </div>
+
+                                        <div class="card-actions">
+                                            <paper-button raised on-click = "itemSelectorClick">Bidding</paper-button>
+                                        </div>
+                                   </paper-card>
                                 </div>
                             </template>
 
@@ -148,7 +153,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </section>
 
                     <section data-route="selecteditempage" animateInitialSelection="true" id="selecteditempage">
-                        <div class="subject">Item Information</div>
+
                         <paper-material elevation="1">
 
                             <display-item selected="{{selected}}">

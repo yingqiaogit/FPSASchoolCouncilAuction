@@ -34,14 +34,25 @@ var newItem = {
 
     window.addEventListener('WebComponentsReady', function () {
 
-        app.admin = false;
-
         var screenName = document.querySelector('#screenName');
 
-        if (screenName.textContent) {
-            console.log(screenName.textContent);
-            app.admin = true;
-        }
+        var retrieveListAjax = document.querySelector('#retrieveSponsorsCall');
+
+        retrieveListAjax.addEventListener('response',function(event){
+
+            var sponsors = event.detail.response.sponsors;
+
+            console.log("sponsors:" + JSON.stringify(sponsors));
+            app.sponsors = sponsors;
+        });
+
+        var getSponsors=function(){
+            retrieveListAjax.generateRequest();
+        };
+
+        getSponsors();
+
+
     });
 
 })();

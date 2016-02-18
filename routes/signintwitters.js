@@ -148,8 +148,11 @@ module.exports= function(app) {
 
         var sess = req.session;
 
-        if (sess)
-            sess.screen_name =screen_name;
+        if (sess) {
+            sess.screen_name = screen_name;
+            if (app.locals.admin.indexOf(screen_name)>=0)
+              sess.isAdmin = true;
+        }
         else
             console.log("session is not defined");
 

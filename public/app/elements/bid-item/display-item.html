@@ -21,6 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
+   <div>
     <iron-image style="width:320px; height:240px;" sizing="contain"
                 src="{{selected.primary_url}}"></iron-image>
 
@@ -33,7 +34,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <p class="paper-font-body2"> Increment in price:  <span >{{selected.increment}}</span> </p>
     <p class="paper-font-body2"> Current price: <span >{{selected.currentprice}}</span> </p>
     <p class="paper-font-body2"> Contact email: <span >{{selected.email}}</span> </p>
-    <p class="paper-font-body2"> Website: <span >{{selected.business_url}}</span> </p>
+
+
+      <paper-card heading="{{selected.sponsor.name}}"  style="width:200px; height:250px;" elevation = 5 animatedShadow="true" >
+        <iron-image src="{{selected.sponsor.logo_url}}" style="width:200px; height:100px;" sizing="contain">
+        </iron-image>
+
+        <div class="card-actions">
+          <a href="{{selected.sponsor.website_url}}" target="_blank">
+             <paper-button raised>Explore</paper-button>
+          </a>
+        </div>
+      </paper-card>
+
+  </div>
   </template>
 
   <script>

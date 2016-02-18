@@ -26,11 +26,11 @@ module.exports=function(app){
 
     var retrieve_items = function(req,res){
 
-        var titles=[];
-
         //the admin can see all of the items
         //other users can see approved item only
-        var statusAllowed = (req.session && req.session.screen_name)?['Require Approval','Approved']:['Approved'];
+        var titles=[];
+
+        var statusAllowed = (req.session && req.session.isAdmin)?['Require Approval','Approved']:['Approved'];
 
         item_db.list({include_docs:true},function(err,body){
             if (!err){
@@ -45,7 +45,10 @@ module.exports=function(app){
                         element.title = item.title;
                         element.id = row.key;
                         element.primary_url = item.primary_url;
-                        element.status = item.status;
+
+                        if (req.session && req.session.isAdmin)
+                            element.status = item.status;
+
                         element.facevalue = item.facevalue;
                         element.currentprice = item.currentprice;
                         console.log('element as ' + JSON.stringify(element));
@@ -56,6 +59,7 @@ module.exports=function(app){
             }
             else
                 res.status(500).send({status:'error'});
+
         });
     }
 
@@ -65,6 +69,46 @@ module.exports=function(app){
        //returns the _id and titles
        retrieve_items(req,res);
     });
+
+    app.get('/items/sponsors', function(req,res){
+
+        var statusAllowed = ['Approved'];
+        var sponsors=[];
+
+        /*
+         * sponsor:{
+         *        name:
+         *    logo_url:
+         * website_url:
+         * }
+         */
+
+        item_db.list({include_docs:true},function(err,body){
+            if (!err){
+
+                //should contain _id with the title
+                body.rows.forEach(function(row){
+                    var item = row.doc.doc
+
+                    if (statusAllowed.indexOf(item.status)>=0)
+                    {
+                        if (item.sponsor)
+                           sponsors.push(item.sponsor);
+                    }
+                });
+                console.log("sponsors " + JSON.stringify(sponsors));
+
+                res.json({sponsors:sponsors});
+            }
+            else
+                res.status(500).send({status:'error'});
+
+        });
+
+
+    });
+
+
 
     //retrieve the doc with the _id
     //body

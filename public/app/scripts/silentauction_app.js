@@ -449,7 +449,9 @@ var newItem = {
             leaveBidding(bid_doc);
         };
 
-
+        app.hasStatus=function(status){
+            return typeof(status)!= "undefined";
+        }
     });
 
 })();

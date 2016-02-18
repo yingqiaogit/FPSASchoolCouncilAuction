@@ -117,6 +117,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </a>
                         </paper-button>
 
+                        <div class = "subject"> Our sponsors</div>
+
+                        <template is="dom-repeat" items="{{sponsors}}">
+                            <div class = "cards" >
+                                <paper-card heading="{{item.name}}"  style="width:200px; height:220px;" elevation = 5 animatedShadow="true" >
+                                    <iron-image src="{{item.logo_url}}" style="width:200px; height:100px;" sizing="contain">
+                                    </iron-image>
+
+                                    <div class="card-actions">
+                                        <a href="{{item.website_url}}" target="_blank">
+                                            <paper-button raised>Explore</paper-button>
+                                        </a>
+                                    </div>
+                                </paper-card>
+                            </div>
+                        </template>
+
+                        <iron-ajax method="GET" id="retrieveSponsorsCall" url="/items/sponsors" contentType="application/json" handle-as="json" debounce-duration="300">
+                        </iron-ajax>
 
                     </section>
                 </iron-pages>
