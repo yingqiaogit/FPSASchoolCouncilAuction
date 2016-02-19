@@ -34,7 +34,13 @@ var newItem = {
 
     window.addEventListener('WebComponentsReady', function () {
 
-        var screenName = document.querySelector('#screenName');
+        app.signin = false;
+
+        var screenNameCom = document.querySelector('#screenName');
+
+        if (screenNameCom.textContent) {
+            app.signin = true;
+        }
 
         var retrieveListAjax = document.querySelector('#retrieveSponsorsCall');
 

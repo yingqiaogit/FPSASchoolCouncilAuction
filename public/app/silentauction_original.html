@@ -98,16 +98,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <div class = "cards">
                         <paper-card heading="Donation" style="width:250px; height:450px;" elevation = 5 animatedShadow="true" >
-                            <iron-image style="width:250px; height:150px;" src='../images/donate-button.png' sizing="contain">
+                            <iron-image style="width:250px; height:150px;" src='../images/community.jpg' sizing="contain">
                             </iron-image>
 
-                            <div class="card-content">
-                                <p> Thank you </p>
 
+                            <div class="card-content">
+                                <template is="dom-if" if="{{thankNotes}}">
+                                    Thank you for your generosity. We will contact you through your email and further approve your donation.
+                                </template>
                             </div>
 
+
                             <div class="card-actions">
-                                <paper-button raised id = "newItemPageButton">Donating</paper-button>
+                                <paper-button raised id = "newItemPageButton">Donate</paper-button>
                             </div>
                         </paper-card>
                         </div>
@@ -131,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         </div>
 
                                         <div class="card-actions">
-                                            <paper-button raised on-click = "itemSelectorClick">Bidding</paper-button>
+                                            <paper-button raised on-click = "itemSelectorClick">Bid</paper-button>
                                         </div>
                                    </paper-card>
                                 </div>
@@ -146,7 +149,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <add-item new-item="{{newItem}}" ></add-item>
 
-                        <paper-button raised = "true" on-click="addItemPressed"> Submit </paper-button>
+                        <paper-button raised = "true" on-click="addItemPressed">Submit!</paper-button>
+
+                        <paper-button raised = "true" on-click="notAddItemPressed">Nop!</paper-button>
 
                         <paper-toast id="toaster" text="{{toaster}}"></paper-toast>
 

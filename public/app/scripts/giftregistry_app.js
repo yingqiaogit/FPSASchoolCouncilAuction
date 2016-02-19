@@ -31,6 +31,8 @@ var newRegister={
 
     window.addEventListener('WebComponentsReady', function () {
 
+        app.admin = false;
+
         var screenNameCom = document.querySelector('#screenName');
 
         if (screenNameCom.textContent) {

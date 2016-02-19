@@ -90,6 +90,8 @@ var newItem = {
 
         });
 
+        app.thankNotes = false;
+
         var addItemAjax = document.querySelector('#addItemCall');
 
         var toaster = document.querySelector('#toaster');
@@ -111,10 +113,12 @@ var newItem = {
 
             app.listedItems = results;
 
-            pages.selected = "home"
+            app.thankNotes = true;
 
+            pages.selected = "home"
             //scrollup
             scrollHeadPanel[0].scrollToTop(true);
+
         });
 
         var addItemSubmission = function () {
@@ -150,6 +154,15 @@ var newItem = {
             addItemSubmission();
 
         };
+
+        app.notAddItemPressed = function(){
+
+            pages.selected = "home";
+            //scrollup
+            scrollHeadPanel[0].scrollToTop(true);
+
+        };
+
 
         var listedItems;
 

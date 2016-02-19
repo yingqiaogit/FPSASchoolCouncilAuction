@@ -28,40 +28,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-material elevation="1">
       <div style="width:400px">
 
-      <p class="paper-font-body2">Title of the item (required, less than 18 characters):</p>
-      <paper-input id="titleInput" placeholder="my title" value="{{newItem.title}}" maxlength = 18></paper-input>
+      <p class="paper-font-body2">Title of the item (required, less than 18 characters):
+          <paper-input  placeholder="item title" value="{{newItem.title}}" maxlength = 18></paper-input>
+      </p>
 
       <br>
-      <p class="paper-font-body2">Description of the item (required): </p>
-      <paper-textarea id="descriptionInput" value="{{newItem.description}}" ></paper-textarea>
+      <p class="paper-font-body2">Description of the item (required):
+          <paper-textarea id="descriptionInput" value="{{newItem.description}}" ></paper-textarea>
+      </p>
 
       <br>
-      <p class="paper-font-body2">The face value of the item (an integer number is preferred):</p>
-      <paper-input id="facevalueInput" placeholder="face value" value="{{newItem.facevalue}}" maxlength=5 ></paper-input>
+      <p class="paper-font-body2">The face value of the item (an integer number is preferred):
+          <paper-input id="facevalueInput" placeholder="face value" value="{{newItem.facevalue}}" maxlength=5 ></paper-input>
+      </p>
+      <br>
+      <p class="paper-font-body2">The initial price of the item (an integer number is preferred):
+          <paper-input id="initialpriceInput" placeholder="initial price" value="{{newItem.currentprice}}" maxlength=5 ></paper-input>
+      </p>
+      <br>
+      <p class="paper-font-body2">The minimum increment in the price of a bid (an integer number is preferred):
+        <paper-input id="incrementInput" placeholder="increment " value="{{newItem.increment}}" maxlength = 5></paper-input>
+      </p>
+      <br>
+      <p class="paper-font-body2">Contact email:
+        <paper-input id="emailInput" value="{{newItem.email}}"></paper-input>
+      </p>
 
       <br>
-      <p class="paper-font-body2">The initial price of the item (an integer number is preferred):</p>
-      <paper-input id="initialpriceInput" placeholder="initial price" value="{{newItem.currentprice}}" maxlength=5 ></paper-input>
+      <p class="paper-font-body2">The URL of item image file:
+        <paper-input id="imageURLInput" value="{{newItem.primary_url}}"></paper-input>
+      </p>
 
-      <br>
-      <p class="paper-font-body2">The minimum increment in the price of a bid (an integer number is preferred):</p>
-      <paper-input id="incrementInput" placeholder="increment " value="{{newItem.increment}}" maxlength = 5></paper-input>
-
-      <br>
-      <p class="paper-font-body2">Contact email address</p>
-      <paper-input id="emailInput" value="{{newItem.email}}"></paper-input>
-
-      <br>
-      <p class="paper-font-body2">The URL of item image file:</p>
-      <paper-input id="imageURLInput" value="{{newItem.primary_url}}"></paper-input>
      </div>
     </paper-material>
+
+    <br>
 
     <div class = "subject"> The following information will be displayed in the Sponsor Section in the first page</div>
     <paper-material elevation="1">
       <div style="width:400px">
         <p class="paper-font-body2">The name of your business (required, less than 18 characters):</p>
-          <paper-input id="titleInput" placeholder="my title" value="{{newItem.sponsor.name}}" maxlength = 18></paper-input>
+          <paper-input id="titleInput" placeholder="busniess name" value="{{newItem.sponsor.name}}" maxlength = 18></paper-input>
         <br>
         <p class="paper-font-body2">The URL of your business logo image file:</p>
           <paper-input id="businessURLInput" value="{{newItem.sponsor.logo_url}}"></paper-input>

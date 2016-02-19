@@ -88,10 +88,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <section data-route="home" animateInitialSelection="true" id="home">
                         <paper-material elevation="1">
                             <div class="subject"> Welcome! <span id="screenName" class="subject"><%= screen_name %></span>
-                                <template is="dom-if" if="{{admin}}">
+                                <template is="dom-if" if="{{signin}}">
                                     <a href="/signintwitters/logout" class="subject"> Logout </a>
                                 </template>
-                                <template is="dom-if" if="{{!admin}}">
+                                <template is="dom-if" if="{{!signin}}">
                                     <a href="/signintwitters/step1">
                                         <iron-image
                                             src="../images/sign-in-with-twitter-gray.png" >
@@ -101,7 +101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </div>
                         </paper-material>
 
-
+                        <div align="center">
                         <paper-button raised >
                             <a href="/home/silentauction">
                                 <iron-image  style="width:400px; height:100px;float:left" sizing="contain"
@@ -116,23 +116,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             src="../images/gift-registry.png"></iron-image>
                             </a>
                         </paper-button>
+                        </div>
 
-                        <div class = "subject"> Our sponsors</div>
 
-                        <template is="dom-repeat" items="{{sponsors}}">
-                            <div class = "cards" >
-                                <paper-card heading="{{item.name}}"  style="width:200px; height:220px;" elevation = 5 animatedShadow="true" >
-                                    <iron-image src="{{item.logo_url}}" style="width:200px; height:100px;" sizing="contain">
-                                    </iron-image>
+                        <div  class="subject" style="font-size: xx-large;color: darkblue;font-style: italic;" align="center" > Our sponsors</div>
+                            <div align="center">
+                                <template is="dom-repeat" items="{{sponsors}}">
+                                    <div class="cards">
+                                        <paper-card heading="{{item.name}}"  style="width:200px; height:220px;--paper-card-background-color:beige" elevation = 5 animatedShadow="true" >
+                                            <iron-image src="{{item.logo_url}}" style="width:200px; height:100px;" sizing="contain">
+                                            </iron-image>
 
-                                    <div class="card-actions">
-                                        <a href="{{item.website_url}}" target="_blank">
-                                            <paper-button raised>Explore</paper-button>
-                                        </a>
+                                            <div class="card-actions">
+                                                <a href="{{item.website_url}}" target="_blank">
+                                                    <paper-button raised>Explore</paper-button>
+                                                </a>
+                                            </div>
+                                        </paper-card>
                                     </div>
-                                </paper-card>
+                                </template>
                             </div>
-                        </template>
+
 
                         <iron-ajax method="GET" id="retrieveSponsorsCall" url="/items/sponsors" contentType="application/json" handle-as="json" debounce-duration="300">
                         </iron-ajax>
