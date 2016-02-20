@@ -26,10 +26,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <paper-material elevation="1">
-      <p class="paper-font-body2">Biding price: <span> {{bidingForm.price}}</span> </p>
+      <p class="paper-font-body2">Biding price:
+        <paper-input type="number" label ='face value'
+                  value="{{bidingForm.price}}" style="width:100px" >
+            <span prefix>$</span>
+        </paper-input>
+      </p>
+
+      <p class="paper-font-body2">Your Name
+        <paper-input value="{{bidingForm.name}}"></paper-input>
+      </p>
 
       <p class="paper-font-body2">Your email
-      <paper-input value="{{bidingForm.email}}"></paper-input>
+        <paper-input value="{{bidingForm.email}}"></paper-input>
       </p>
     </paper-material>
 

@@ -39,24 +39,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <br>
       <p class="paper-font-body2">The face value of the item (an integer number is preferred):
-          <paper-input id="facevalueInput" placeholder="face value" value="{{newItem.facevalue}}" maxlength=5 ></paper-input>
+
+        <paper-input type="number" label ='face value'
+                  style="width:100px" value="{{newItem.facevalue}}" >
+            <span prefix>$</span>
+        </paper-input>
+
       </p>
+
       <br>
-      <p class="paper-font-body2">The initial price of the item (an integer number is preferred):
-          <paper-input id="initialpriceInput" placeholder="initial price" value="{{newItem.currentprice}}" maxlength=5 ></paper-input>
+      <p class="paper-font-body2">The bidding price of the item (an integer number is preferred):
+         <paper-input type="number" label = 'initial value'
+                      style="width:100px" value="{{newItem.currentprice}}" >
+             <span prefix>$</span>
+         </paper-input>
       </p>
+
       <br>
+
       <p class="paper-font-body2">The minimum increment in the price of a bid (an integer number is preferred):
-        <paper-input id="incrementInput" placeholder="increment " value="{{newItem.increment}}" maxlength = 5></paper-input>
+        <paper-input type="number" label = 'minimum increment'
+                     style="width:100px" value="{{newItem.increment}}" >
+          <span prefix>$</span>
+        </paper-input>
+
       </p>
+
       <br>
       <p class="paper-font-body2">Contact email:
-        <paper-input id="emailInput" value="{{newItem.email}}"></paper-input>
+        <paper-input value="{{newItem.email}}"></paper-input>
       </p>
 
       <br>
       <p class="paper-font-body2">The URL of item image file:
-        <paper-input id="imageURLInput" value="{{newItem.primary_url}}"></paper-input>
+        <paper-input value="{{newItem.primary_url}}"></paper-input>
       </p>
 
      </div>
@@ -68,13 +84,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-material elevation="1">
       <div style="width:400px">
         <p class="paper-font-body2">The name of your business (required, less than 18 characters):</p>
-          <paper-input id="titleInput" placeholder="busniess name" value="{{newItem.sponsor.name}}" maxlength = 18></paper-input>
+          <paper-input placeholder="busniess name" value="{{newItem.sponsor.name}}" maxlength = 18></paper-input>
         <br>
         <p class="paper-font-body2">The URL of your business logo image file:</p>
-          <paper-input id="businessURLInput" value="{{newItem.sponsor.logo_url}}"></paper-input>
+          <paper-input value="{{newItem.sponsor.logo_url}}"></paper-input>
         <br>
         <p class="paper-font-body2">The URL of your business website:</p>
-          <paper-input id="businessURLInput" value="{{newItem.sponsor.website_url}}"></paper-input>
+          <paper-input value="{{newItem.sponsor.website_url}}"></paper-input>
       </div>
     </paper-material>
   </template>

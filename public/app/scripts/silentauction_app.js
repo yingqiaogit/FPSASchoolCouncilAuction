@@ -8,6 +8,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 var newItem = {
+    sponsor: {
+
+    }
 };
 
 (function () {
@@ -50,6 +53,8 @@ var newItem = {
         */
         app.admin = false;
 
+        app.status = 'list';
+
         var screenName = document.querySelector('#screenName');
 
         if (screenName.textContent) {
@@ -86,38 +91,49 @@ var newItem = {
             //switch to the add item page
             app.newItem = newItem;
 
+            app.status = 'addItem';
+
             pages.selected = "additempage";
 
         });
 
         app.thankNotes = false;
 
+        var displayListAfterEvent = function(event){
+            console.log("response from server" + JSON.stringify(event.detail.response));
+            //after an item is added, the item list in the home page is
+            //refreshed by the response
+
+            if (event.detail.response.status)
+            {
+                //invalid input
+                app.toaster= event.detail.response.status;
+                toaster.show();
+                return;
+            }
+
+            var results = event.detail.response.titles;
+
+            app.listedItems = results;
+
+            pages.selected = "home";
+
+            app.status = 'list';
+
+            //scrollup
+            scrollHeadPanel[0].scrollToTop(true);
+
+        }
+
         var addItemAjax = document.querySelector('#addItemCall');
 
         var toaster = document.querySelector('#toaster');
 
         addItemAjax.addEventListener('response', function (e) {
-            console.log("response from server" + JSON.stringify(e.detail.response));
-            //after an item is added, the item list in the home page is
-            //refreshed by the response
 
-            if (e.detail.response.status)
-            {
-                //invalid input
-                app.toaster= e.detail.response.status;
-                toaster.show();
-                return;
-            }
-
-            var results = e.detail.response.titles;
-
-            app.listedItems = results;
-
-            app.thankNotes = true;
-
-            pages.selected = "home"
-            //scrollup
-            scrollHeadPanel[0].scrollToTop(true);
+            if (app.status =='addItem')
+                app.thankNotes = true;
+            displayListAfterEvent(e);
 
         });
 
@@ -128,9 +144,12 @@ var newItem = {
 
             submittedItem.status = 'Require Approval';
 
-            addItemAjax.body = JSON.stringify(submiitedItem);
+            if (submittedItem.bids)
+                delete submittedItem.bids;
 
-            console.log(addItemAjax.body);
+            addItemAjax.body = JSON.stringify(submittedItem);
+
+            console.log("submitted item "+ addItemAjax.body);
 
             addItemAjax.generateRequest();
         };
@@ -155,9 +174,18 @@ var newItem = {
 
         };
 
-        app.notAddItemPressed = function(){
+        app.leave= function(){
 
-            pages.selected = "home";
+            if (app.status == 'edit') {
+                pages.selected = 'adminitempage';
+                app.status = 'admin';
+            }
+            else
+            {
+                pages.selected = 'home';
+                app.status = 'list';
+            }
+
             //scrollup
             scrollHeadPanel[0].scrollToTop(true);
 
@@ -187,8 +215,40 @@ var newItem = {
 
             //retrieve the item with the id
             //and open the item page
+            app.status = 'bid';
             openItemPage(id);
         };
+
+        app.itemAdminClick= function(event){
+            console.log("The item is pressed");
+
+            var id = event.model.dataHost.dataHost.item.id;
+            //retrieve the item with the id
+            //and open the item page
+            retrieveItem(id);
+
+            app.status = 'admin';
+
+            pages.selected = "adminitempage";
+        };
+
+        var deleteItemAjax = document.querySelector('#deleteItemCall');
+
+        app.deleteItem = function(event){
+
+            //send ajax call to the sever with id in the body
+
+            var id = app.selected.id;
+
+            deleteItemAjax.url = '/items/'+id;
+
+            deleteItemAjax.generateRequest();
+        };
+
+        deleteItemAjax.addEventListener('response', function (e) {
+            displayListAfterEvent(e);
+
+        });
 
         var socket;
 
@@ -226,7 +286,7 @@ var newItem = {
                 if (app.selected == null) {
                    bidding_price_queue.push(bid);
                }else {
-                    if (bid.time == bidInfoGrid.data.source[bidInfoGrid.data.source.length - 1].time)
+                    if (bid.time && (bid.time == bidInfoGrid.data.source[bidInfoGrid.data.source.length - 1].time))
                         return;
 
                     var selected = JSON.parse(JSON.stringify(app.selected));
@@ -283,6 +343,9 @@ var newItem = {
             var selected = event.detail.response.selected;
 
             app.selected = selected;
+
+            if (app.adminStatus && app.adminStatus == 'init')
+                return;
 
             bidInfoGrid = document.querySelector('#bidinfogrid');
 
@@ -348,11 +411,15 @@ var newItem = {
 
         var approveItemAjax = document.querySelector('#approveItemCall');
 
-        app.approving= function(event){
+        app.approveItemToggle= function(event){
 
             var approval ={};
             approval.id = app.selected.id;
-            approval.status = 'Approved';
+
+            if (app.selected.status === 'Require Approval')
+                approval.status = 'Approved';
+            else
+                approval.status = 'Require Approval';
 
             approveItemAjax.body = JSON.stringify(approval);
 
@@ -360,14 +427,22 @@ var newItem = {
 
             approveItemAjax.generateRequest();
 
-            var selected = JSON.parse(JSON.stringify(app.selected));
-
-            selected.status = 'Approved';
-
-            app.selected = JSON.parse(JSON.stringify(selected));
-
         };
 
+        app.editItem = function(event){
+            app.newItem = app.selected;
+
+            app.status = 'edit';
+
+            pages.selected = 'additempage';
+
+        }
+
+        approveItemAjax.addEventListener('response',function(e){
+
+            displayListAfterEvent(e);
+
+        });
 
         app.biding = function(event){
             //connected to the socket at the server
@@ -429,6 +504,7 @@ var newItem = {
             resetItemPage();
             openItemList();
             pages.selected = "home";
+            app.status = 'list';
         };
 
         //retrieve the item list first

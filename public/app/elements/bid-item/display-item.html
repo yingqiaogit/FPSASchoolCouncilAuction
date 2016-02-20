@@ -36,6 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <p class="paper-font-body2"> Contact email: <span >{{selected.email}}</span> </p>
 
 
+    <template is="dom-if" if="{{hasSponsor(selected)}}">
       <paper-card heading="{{selected.sponsor.name}}"  style="width:200px; height:250px;" elevation = 5 animatedShadow="true" >
         <iron-image src="{{selected.sponsor.logo_url}}" style="width:200px; height:100px;" sizing="contain">
         </iron-image>
@@ -46,7 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </a>
         </div>
       </paper-card>
-
+    </template>
   </div>
   </template>
 
@@ -60,7 +61,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Object,
             notify: true
           }
-        }
+        },
+       hasSponsor: function(item){
+
+           return (item && item.sponsor && (item.sponsor.name || item.sponsor.logo_url ||item.sponsor.website_url))
+       }
       });
     })();
   </script>

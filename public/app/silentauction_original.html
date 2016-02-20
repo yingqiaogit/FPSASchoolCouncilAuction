@@ -135,6 +135,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                                         <div class="card-actions">
                                             <paper-button raised on-click = "itemSelectorClick">Bid</paper-button>
+                                            <template is="dom-if" if="{{hasStatus(item.status)}}">
+                                                <paper-button raised on-click = "itemAdminClick">Admin</paper-button>
+                                            </template>
                                         </div>
                                    </paper-card>
                                 </div>
@@ -151,11 +154,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <paper-button raised = "true" on-click="addItemPressed">Submit!</paper-button>
 
-                        <paper-button raised = "true" on-click="notAddItemPressed">Nop!</paper-button>
+                        <paper-button raised = "true" on-click="leave">Nop!</paper-button>
 
                         <paper-toast id="toaster" text="{{toaster}}"></paper-toast>
 
                     </section>
+
+                    <section data-route="adminitempage" animateInitialSelection="true" id="itemAdminPage">
+
+                        <paper-material elevation="1">
+
+                            <display-item selected="{{selected}}">
+                            </display-item>
+
+                        </paper-material>
+
+                        <paper-button raised = "true" on-click="editItem">Edit</paper-button>
+
+                        <paper-button raised = "true" on-click="deleteItem">Delete</paper-button>
+
+                        <template is="dom-if" if="{{isEqual(selected.status, 'Require Approval')}}">
+                            <paper-button raised = "true" on-click="approveItemToggle">Approve</paper-button>
+                        </template>
+
+                        <template is="dom-if" if="{{isEqual(selected.status, 'Approved')}}">
+                            <paper-button raised = "true" on-click="approveItemToggle">Disapprove</paper-button>
+                        </template>
+
+                        <paper-button raised = "true" on-click="leave"> Nop </paper-button>
+
+                    </section>
+
 
                     <section data-route="selecteditempage" animateInitialSelection="true" id="selecteditempage">
 
@@ -179,17 +208,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <template is="dom-if" if="{{isAt(itemstate,'init')}}">
                             <paper-button raised = "true" on-click="biding"> Bid </paper-button>
-                            <paper-button raised = "true" on-click="leavebiding"> Leave </paper-button>
-                            <template is="dom-if" if="{{isEqual(selected.status, 'Require Approval')}}">
-                                <paper-button raised = "true" on-click="approving" style="color: red;"> Approve </paper-button>
-                            </template>
+                            <paper-button raised = "true" on-click="leavebiding"> Nop </paper-button>
+
                         </template>
 
                         <template is="dom-if" if="{{isAt(itemstate,'bidding')}}">
                             <div class="subject">It is your turn to make a bid for the item now</div>
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
                             <paper-button raised = "true" on-click="submitbid"> Bid! </paper-button>
-                            <paper-button raised = "true" on-click="leavebiding"> Leave! </paper-button>
+                            <paper-button raised = "true" on-click="leavebiding"> Nop! </paper-button>
                         </template>
 
                         <template is="dom-if" if="{{isAt(itemstate,'waiting')}}">
@@ -238,6 +265,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </section>
 
                     <iron-ajax method="POST" id="addItemCall" url="/items/submit" contentType="application/json" handle-as="json" debounce-duration="300">
+                    </iron-ajax>
+
+                    <iron-ajax method="DELETE" id="deleteItemCall" contentType="application/json" handle-as="json" debounce-duration="300">
                     </iron-ajax>
 
                     <iron-ajax method="POST" id="bidItemCall" url="/items/bid" contentType="application/json" handle-as="json" debounce-duration="300">
