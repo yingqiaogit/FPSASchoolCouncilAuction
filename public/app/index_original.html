@@ -53,11 +53,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.7/socket.io.js"></script>
 
     <!-- will be replaced with elements/elements.vulcanized.html -->
-    <link rel="import" href="../app/elements/elements.html">
+    <link rel="import" href="../app/elements/enlarged-elements.html">
     <!-- endreplace-->
 </head>
 
 <body unresolved class="fullbleed layout vertical">
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
     <span id="browser-sync-binding"></span>
     <template is="dom-bind" id="app">
 
@@ -79,6 +88,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     &nbsp Year of 2015 - 2016
                 </div>
 
+                <span id="screenName" class="vslogo"><%= screen_name %></span>
+
+                <div class="horizontal-section-container" style="color:white;">
+                    <div class="horizontal-section">
+                        <paper-menu-button>
+                            <paper-icon-button icon="account-circle" class="dropdown-trigger"></paper-icon-button>
+                            <paper-menu id="avatarMenu" class="dropdown-content">
+                                <template is='dom-if'  if="{{signin}}">
+                                    <paper-item onclick="location.href='signintwitters/logout'">Logout</paper-item>
+                                </template>
+                                <template is='dom-if' if="{{!signin}}">
+                                    <paper-item onclick="location.href='signintwitters/step1'">Signin</paper-item>
+                                </template>
+                            </paper-menu>
+                        </paper-menu-button>
+                    </div>
+                </div>
+
             </paper-toolbar>
 
             <!-- Main Content -->
@@ -87,18 +114,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     <section data-route="home" animateInitialSelection="true" id="home">
                         <paper-material elevation="1">
-                            <div class="subject"> Welcome! <span id="screenName" class="subject"><%= screen_name %></span>
-                                <template is="dom-if" if="{{signin}}">
-                                    <a href="/signintwitters/logout" class="subject"> Logout </a>
-                                </template>
-                                <template is="dom-if" if="{{!signin}}">
-                                    <a href="/signintwitters/step1">
-                                        <iron-image
-                                            src="../images/sign-in-with-twitter-gray.png" >
-                                        </iron-image>
-                                    </a>
-                                </template>
+                            <div class="subject"> Welcome!
                             </div>
+
+                            <div>
+                                <a href="https://twitter.com/share" class="twitter-share-button" data-size="large" >Tweet</a>
+                                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+                            </div>
+
+                            <div class="fb-share-button" data-href="http://fpsaschoolcouncilauction.mybluemix.net/" data-layout="button_count"></div>
+
                         </paper-material>
 
                         <div align="center">
@@ -119,7 +144,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </div>
 
 
-                        <div  class="subject" style="font-size: xx-large;color: darkblue;font-style: italic;" align="center" > Our sponsors</div>
+                        <div  class="subject" style="font-size: xx-large;color: #3949ab;font-style: italic;" align="center" > Our donors</div>
                             <div align="center">
                                 <template is="dom-repeat" items="{{sponsors}}">
                                     <div class="cards">
