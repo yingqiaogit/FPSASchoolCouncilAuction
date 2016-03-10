@@ -50,8 +50,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="../app/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <!-- endbuild -->
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.7/socket.io.js"></script>
-
     <!-- will be replaced with elements/elements.vulcanized.html -->
     <link rel="import" href="../app/elements/enlarged-elements.html">
     <!-- endreplace-->
@@ -96,10 +94,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-icon-button icon="account-circle" class="dropdown-trigger"></paper-icon-button>
                             <paper-menu id="avatarMenu" class="dropdown-content">
                                 <template is='dom-if'  if="{{signin}}">
-                                    <paper-item onclick="location.href='signintwitters/logout'">Logout</paper-item>
+                                    <paper-item onclick="location.href='/signintwitters/logout'">Logout</paper-item>
                                 </template>
                                 <template is='dom-if' if="{{!signin}}">
-                                    <paper-item onclick="location.href='signintwitters/step1'">Signin</paper-item>
+                                    <paper-item onclick="location.href='/signintwitters/step1'">Signin</paper-item>
                                 </template>
                             </paper-menu>
                         </paper-menu-button>

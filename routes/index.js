@@ -28,6 +28,11 @@ module.exports=function(app){
            res.render('app/silentauction.html', {screen_name: screenName});
        }
 
+       if (page == 'index') {
+           console.log("retrieve the auction page");
+           res.render('app/homeindex.html', {screen_name: screenName});
+       }
+
    });
 
 };
