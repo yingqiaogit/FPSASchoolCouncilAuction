@@ -73,7 +73,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
 
                 <!-- Application sub title -->
-                <div class="bottom">
+                <div class="middle">
                     &nbsp Year of 2015 - 2016
                 </div>
 
@@ -94,6 +94,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <section data-route="home" animateInitialSelection="true" id="home">
                         <div class="subject"> Welcome! <span id="screenName" class="subject"><%= screen_name %></span>
                             You may click a gift in the following list to make your contribution. </div>
+                        <div class="ratinginfo"> Note: the colour/fabric and style is not exactly as shown </div>
 
 
                         <template is="dom-repeat" items="{{giftList}}">
@@ -108,12 +109,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  </template>
 
                                  <template is="dom-if" if="{{!item.display}}">
-                                            <register-item register="{{register}}" gift="{{item}}">
+                                            <register-item register="{{item.register}}" gift="{{item}}" >
                                             </register-item>
-                                            <paper-button on-click = "giftRegisterClick" raised>
-                                            Register!</paper-button>
+                                            <paper-button>
+                                                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                                                    <input type="hidden" name="cmd" value="_s-xclick">
+                                                    <input type="hidden" name="item_name" value="{{item.title}}">
+                                                    <input type="hidden" name="item_number" value="{{item.id}}">
+                                                    <input type="hidden" name="option_amount" value="25.00">
+                                                    <input type="hidden" name="hosted_button_id" value="UPJUJU5XQ6CQ8">
+                                                    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+                                                    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                                                </form>
+                                            </paper-button>
+
                                             <paper-button on-click = "leaveRegisterClick" raised>
-                                                Nop!</paper-button>
+                                               Cancel</paper-button>
                                  </template>
 
                                  <template is="dom-if" if="{{item.registered}}">

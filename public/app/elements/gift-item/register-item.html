@@ -26,13 +26,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
 
-      <p class="paper-font-body2">Amount of your contribution (e.g., 0.5, 1, 1.5...):
-        <paper-input value="{{register.amount}}"></paper-input>
-      </p>
+      <div >Portion of the gift (e.g., 0.5, 1, 1.5...):
+        <paper-input value="{{register.amount::input}}" on-change="calContribution"></paper-input>
+      </div>
 
-      <p class="paper-font-body2">Your email:
-          <paper-input value="{{register.email}}"></paper-input>
-      </p>
+
+      <div >Value of your contribution (including PayPay transaction fee 2.9% + 0.30):
+        <p style="font-weight:bold"> $ <span>{{contribution}}</span></p>
+      </div>
 
 
   </template>
@@ -41,12 +42,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     (function() {
       Polymer({
         is: 'register-item',
-
         properties: {
           register:{
             type: Object,
             notify: true
+          },
+          gift:{
+              type: Object
+          },
+          contribution: {
+              type: Number
           }
+        },
+
+        ready: function(){
+            this.contribution = 0;
+        },
+
+        calContribution:function(e){
+            // transaction fee in PayPal is 2.9% + 0.30
+
+            if (this.register.amount)
+            {
+                this.register.contribution = +((this.register.amount*this.gift.value*(1 + 0.029) + 0.3).toFixed(2));
+                this.contribution = this.register.contribution;
+            }
 
         }
       });

@@ -7,8 +7,8 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 */
 var newRegister={
-  amount: null,
-  email: null
+  amount: 0,
+  contribution: 0
 };
 
 (function () {
@@ -63,7 +63,6 @@ var newRegister={
                gift.index = index;
                gift.display = true;
                gift.registered = false;
-
             });
 
             console.log("titles:" + JSON.stringify(giftList));
@@ -94,8 +93,11 @@ var newRegister={
             giftList[pos].registered = false;
             //retrieve the item with the id
             //and open the item page
+
+            giftList[pos].register = JSON.parse(JSON.stringify(newRegister));
+
             app.giftList = JSON.parse(JSON.stringify(giftList));
-            app.register = JSON.parse(JSON.stringify(newRegister));
+
         };
 
         app.leaveRegisterClick= function(event){
@@ -112,8 +114,8 @@ var newRegister={
             giftList[pos].registered = false;
             //retrieve the item with the id
             //and open the item page
+            giftList[pos].register = JSON.parse(JSON.stringify(newRegister));
             app.giftList = JSON.parse(JSON.stringify(giftList));
-            app.register = JSON.parse(JSON.stringify(newRegister));
         };
 
         var registerAjax=document.querySelector('#registerCall');
