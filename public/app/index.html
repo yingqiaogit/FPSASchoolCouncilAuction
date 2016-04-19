@@ -11,8 +11,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="FPSA School Council Fundraising">
-    <title>FPSA School Fundraising</title>
+    <title>FPSA School Council Fundraising</title>
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+
 
     <!-- Chrome for Android theme color -->
     <meta name="theme-color" content="#303F9F">
@@ -25,7 +27,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="FPSA School Council Silent Auction">
+    <meta name="application-name" content="FPSA School Council Fundraising">
     <link rel="icon" sizes="192x192" href="./images/touch/chrome-touch-icon-192x192.png">
 
     <!-- Add to homescreen for Safari on iOS -->
@@ -25813,6 +25815,14 @@ be used as the label of the toolbar via `aria-labelledby`.
   </script>
 </dom-module>
 </div>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
 
     <span id="browser-sync-binding"></span>
     <template is="dom-bind" id="app">
@@ -25835,43 +25845,86 @@ be used as the label of the toolbar via `aria-labelledby`.
                     &nbsp; Year of 2015 - 2016
                 </div>
 
-            </paper-toolbar>
+                <span id="screenName" class="vslogo"><%= screen_name %></span>
 
+                <div class="horizontal-section-container" style="color:white;">
+                    <div class="horizontal-section">
+                        <paper-menu-button>
+                            <paper-icon-button icon="account-circle" class="dropdown-trigger"></paper-icon-button>
+                            <paper-menu id="avatarMenu" class="dropdown-content">
+                                <template is="dom-if" if="{{signin}}">
+                                    <paper-item onclick="location.href='/signintwitters/logout'">Logout</paper-item>
+                                </template>
+                                <template is="dom-if" if="{{!signin}}">
+                                    <paper-item onclick="location.href='/signintwitters/step1'">Signin</paper-item>
+                                </template>
+                            </paper-menu>
+                        </paper-menu-button>
+                    </div>
+                </div>
+
+            </paper-toolbar>
 
             <!-- Main Content -->
             <div class="content" id="mainContent">
                 <iron-pages attr-for-selected="data-route" selected="home">
 
                     <section data-route="home" animateinitialselection="true" id="home">
-                        <paper-material elevation="0">
-
-                            <div class="subject" style="font-size:larger;font-weight: bolder"> Welcome
+                        <paper-material elevation="1">
+                            <div class="subject">
+                                    <p class="ratinginfo">
+                                        The Fisher Park / Summit Alternative school library is used every day by hundreds of students.
+                                        They use the space to read, work, collaborate and share with each other. This summer, our library will get a long overdue paint job and a new carpet.
+                                        In anticipation of the library reboot, we're planning a silent auction and a gift registry.
+                                    </p>
                             </div>
 
-                            <iron-image src="../images/learning-commons.jpg" style="width:384px;height:288px;float:right;" align="right" sizing="contain">
-                            </iron-image>
-
-                            <div style="width:550px">
-                            <p class="ratinginfo">
-                                 The Fisher Park / Summit Alternative school library is used every day by hundreds of students.
-                                 They use the space to read, work, collaborate and share with each other.
-                            </p>
-
-                            <p class="ratinginfo">
-                                   This summer, our library will get a long overdue paint job and a new carpet.
-                                   In anticipation of the library reboot, we're planning a silent auction, and would be grateful for any contributions you would be willing to make.
-                                   Your contributions will be posted on this web site, along with a link to your web site.
-                            </p>
-
-                            <p class="ratinginfo">
-                                    If you'd like to contribute, please contact <a href="mailto:kathryn.anthonisen@canarie.ca">Kathryn Anthonisen</a>
-                                    or <a href="mailto:melissa.dimock@gmail.com">Melissa Dimock</a>. You're also invited to join us on May 25 for the auction finale.
-
-                            </p>
+                            <div>
+                                <a href="https://twitter.com/share" class="twitter-share-button" data-size="large">Tweet</a>
+                                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
                             </div>
+
+                            <div class="fb-share-button" data-href="http://fpsaschoolcouncilauction.mybluemix.net/" data-layout="button_count"></div>
 
                         </paper-material>
 
+                        <div align="center">
+                        <paper-button raised="">
+                            <a href="/home/silentauction">
+                                <iron-image style="width:400px; height:100px;float:left" sizing="contain" src="../images/silent-auction.png"></iron-image>
+
+                            </a>
+                        </paper-button>
+
+                        <paper-button raised="">
+                            <a href="/home/giftregistry">
+                                <iron-image style="width:400px; height:100px;float:left" sizing="contain" src="../images/gift-registry.png"></iron-image>
+                            </a>
+                        </paper-button>
+                        </div>
+
+
+                        <div class="subject" style="font-size: xx-large;color: #3949ab;font-style: italic;" align="center"> Our donors</div>
+                            <div align="center">
+                                <template is="dom-repeat" items="{{sponsors}}">
+                                    <div class="cards">
+                                        <paper-card heading="{{item.name}}" style="width:200px; height:220px;--paper-card-background-color:beige" elevation="5" animatedshadow="true">
+                                            <iron-image src="{{item.logo_url}}" style="width:200px; height:100px;" sizing="contain">
+                                            </iron-image>
+
+                                            <div class="card-actions">
+                                                <a href="{{item.website_url}}" target="_blank">
+                                                    <paper-button raised="">Explore</paper-button>
+                                                </a>
+                                            </div>
+                                        </paper-card>
+                                    </div>
+                                </template>
+                            </div>
+
+
+                        <iron-ajax method="GET" id="retrieveSponsorsCall" url="/items/sponsors" contenttype="application/json" handle-as="json" debounce-duration="300">
+                        </iron-ajax>
 
                     </section>
                 </iron-pages>
@@ -25881,7 +25934,71 @@ be used as the label of the toolbar via `aria-labelledby`.
 
     </template>
     <!-- build:js scripts/silentauction_app.js -->
+    <script>/*
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
 
+var newItem = {
+    title: null,
+    description:null,
+    initialprice: null,
+    increment: null
+};
+
+(function () {
+    'use strict';
+
+    // Grab a reference to our auto-binding template
+    // and give it some initial binding values
+    // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
+    var app = document.querySelector('#app');
+
+    // Listen for template bound event to know when bindings
+    // have resolved and content has been stamped to the page
+    app.addEventListener('dom-change', function () {
+        console.log('Our app is ready to rock!');
+    });
+
+    // Close drawer after menu item is selected if drawerPanel is narrow
+
+    // See https://github.com/Polymer/polymer/issues/1381
+
+    window.addEventListener('WebComponentsReady', function () {
+
+        app.signin = false;
+
+        var screenNameCom = document.querySelector('#screenName');
+
+        if (screenNameCom.textContent) {
+            app.signin = true;
+        }
+
+        var retrieveListAjax = document.querySelector('#retrieveSponsorsCall');
+
+        retrieveListAjax.addEventListener('response',function(event){
+
+            var sponsors = event.detail.response.sponsors;
+
+            console.log("sponsors:" + JSON.stringify(sponsors));
+            app.sponsors = sponsors;
+        });
+
+        var getSponsors=function(){
+            retrieveListAjax.generateRequest();
+        };
+
+        getSponsors();
+
+
+    });
+
+})();
+</script>
     <!-- endbuild-->
 
 

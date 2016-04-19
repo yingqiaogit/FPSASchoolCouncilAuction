@@ -75,14 +75,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
 
                 <!-- Application sub title -->
-                <div class="bottom">
+                <div class="middle">
                     &nbsp Year of 2015 - 2016
                 </div>
 
                 <!-- Toolbar icons -->
 
                 <paper-tabs id="categoryTab" selected="0" class="bottom self-end" style=" margin-bottom:0;color:white;font-size:14px;">
-                    <paper-tab><a href="/home/index" style="color:white">HOME</a></paper-tab>
+                    <paper-tab><a href="/" style="color:white">HOME</a></paper-tab>
                 </paper-tabs>
 
                 <!--                <div class="bottom flex self-start"></div>-->
@@ -115,7 +115,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </paper-card>
                         </div>
 
-                            <template is="dom-repeat" items="{{listedItems}}">
+                        <template is="dom-repeat" items="{{listedItems}}">
                                 <div class = "cards" >
                                    <paper-card heading="{{item.title}}"  style="width:250px; height:450px;" elevation = 5 animatedShadow="true" >
                                         <iron-image src="{{item.primary_url}}" style="width:250px; height:150px;" sizing="contain">
