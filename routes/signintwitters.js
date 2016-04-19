@@ -171,7 +171,7 @@ module.exports= function(app) {
 
         }*/
 
-        res.redirect('/home/index');
+        res.redirect('/');
 
     });
 
