@@ -46,55 +46,12 @@ var server = app.listen(appEnv.port, appEnv.bind, function () {
 
 app.locals.url = appEnv.url;
 
-var redisParms={};
-
-var initialRedisParms = function () {
-
-  var vcapServices;
-  if (process.env.VCAP_SERVICES)
-    vcapServices = JSON.parse(process.env.VCAP_SERVICES);
-
-  if (vcapServices && vcapServices.rediscloud) {
-
-    var credentials = vcapServices.rediscloud[0].credentials;
-    redisParms.hostname = credentials.hostname;
-    redisParms.password = credentials.password;
-    redisParms.port = credentials.port;
-  } else {
-
-    if (process.env.redis_hostname && process.env.redis_password && process.env.redis_port)
-    {
-       redisParms.hostname = process.env.redis_hostname;
-       redisParms.password = process.env.redis_password;
-       redisParms.port = process.env.redis_port;
-    }
-  }
-}
-
-initialRedisParms();
-
 //for session management
 
 var session = require('express-session');
-//var RedisStore = require('connect-redis')(session);
-//var redis = require('redis');
-//var redisClient = redis.createClient();
 
 var cookieParser = require('cookie-parser');
 app.use(cookieParser("secretOfCookie"));
-
-/*app.use(session({
-  secret: "thisisasecret",
-  saveUninitialized: false,
-  resave: false,
-  store: new RedisStore({
-    host: redisParms.hostname,
-    port: redisParms.port,
-    client: redisClient
-  }),
-  ttl: 5 * 24 * 60 * 60 //5 days expiration
-}));
-*/
 
 //memory store here:
 
@@ -117,7 +74,6 @@ app.locals.twitterConfig = twitterConfig;
 var io = require('socket.io').listen(server);
 
 app.locals.io = io;
-
 
 // development error handler
 // will print stacktrace

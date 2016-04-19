@@ -52,7 +52,8 @@ module.exports=function(app){
         //other users can see approved item only
         var titles=[];
 
-        var statusAllowed = (req.session && req.session.isAdmin)?['Require Approval','Approved']:['Approved'];
+        var isAdmin = req.session && req.session.isAdmin ? true:false;
+        var statusAllowed = isAdmin?['Require Approval','Approved']:['Approved'];
 
         item_db.list({include_docs:true},function(err,body){
             if (!err){
@@ -77,7 +78,7 @@ module.exports=function(app){
                         titles.push(element);
                     }
                 });
-                res.json({titles:titles});
+                res.json({isAdmin: isAdmin,titles:titles});
             }
             else
                 res.status(500).send({status:'error'});

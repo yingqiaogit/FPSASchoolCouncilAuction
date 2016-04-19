@@ -21,18 +21,19 @@ module.exports=function(app){
 
        if (page == 'giftregistry') {
            console.log("retrieve the gift page");
-           res.render('app/giftregistry_original.html', {screen_name: screenName});
+           res.render('app/giftregistry.html', {screen_name: screenName});
        }
        if (page == 'silentauction') {
            console.log("retrieve the auction page");
-           res.render('app/silentauction_original.html', {screen_name: screenName});
+           res.render('app/silentauction.html', {screen_name: screenName});
        }
 
+       /*
        if (page == 'index') {
            console.log("retrieve the auction page");
            res.render('app/index_original.html', {screen_name: screenName});
        }
-
+       */
    });
 
 };
