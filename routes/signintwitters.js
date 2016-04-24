@@ -183,7 +183,7 @@ module.exports= function(app) {
             }
             else
             {
-                res.redirect('/home/index');
+                res.redirect('/');
             }
         });
 

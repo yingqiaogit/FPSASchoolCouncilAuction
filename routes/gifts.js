@@ -62,11 +62,33 @@ module.exports=function(app){
     }
 
     //retrieve all of the titles from the doc
-    app.get('/gifts/list',function(req,res){
+    app.get('/gifts/:operation',function(req,res){
 
        //returns the _id and titles
-       retrieve_items(res);
+        var opt = req.params.operation;
+
+        var screenName = (req.session && req.session.screen_name)? req.session.screen_name:null;
+
+        if (opt == "list")
+            retrieve_items(res);
+
+        if (opt == 'registersuccess'){
+            console.log("transaction success!");
+
+            res.render('app/giftregistry_original.html', {note: "Your gift has been received. We appreciate!",
+                                                          screen_name: screenName });
+        }
+
+        if (opt == 'registercancel'){
+            console.log("transaction cancelled!");
+
+            res.render('app/giftregistry_original.html', {note: "Your transaction has been cancelled.",
+                                                          screen_name: screenName });
+
+        }
+
     });
+
 
     app.post('/gifts/register', function(req,res){
         //bid information is contained in the request body

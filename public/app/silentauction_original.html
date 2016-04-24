@@ -152,9 +152,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <add-item new-item="{{newItem}}" ></add-item>
 
-                        <paper-button raised = "true" on-click="addItemPressed">Submit!</paper-button>
+                        <paper-button raised = "true" on-click="addItemPressed">Submit</paper-button>
 
-                        <paper-button raised = "true" on-click="leave">Nop!</paper-button>
+                        <paper-button raised = "true" on-click="leave">Cancel</paper-button>
 
                         <paper-toast id="toaster" text="{{toaster}}"></paper-toast>
 
@@ -181,7 +181,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-button raised = "true" on-click="approveItemToggle">Disapprove</paper-button>
                         </template>
 
-                        <paper-button raised = "true" on-click="leave"> Nop </paper-button>
+                        <paper-button raised = "true" on-click="leave"> Cancel </paper-button>
 
                     </section>
 
@@ -208,15 +208,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <template is="dom-if" if="{{isAt(itemstate,'init')}}">
                             <paper-button raised = "true" on-click="biding"> Bid </paper-button>
-                            <paper-button raised = "true" on-click="leavebiding"> Nop </paper-button>
+                            <paper-button raised = "true" on-click="leavebiding">Cancel</paper-button>
 
                         </template>
 
                         <template is="dom-if" if="{{isAt(itemstate,'bidding')}}">
                             <div class="subject">It is your turn to make a bid for the item now</div>
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
-                            <paper-button raised = "true" on-click="submitbid"> Bid! </paper-button>
-                            <paper-button raised = "true" on-click="leavebiding"> Nop! </paper-button>
+                            <paper-button raised = "true" on-click="submitbid"> Bid </paper-button>
+                            <paper-button raised = "true" on-click="leavebiding">Cancel</paper-button>
                         </template>
 
                         <template is="dom-if" if="{{isAt(itemstate,'waiting')}}">
@@ -233,7 +233,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             </template>
 
                             <br>
-                            <paper-button raised = "true" on-click="leavebiding"> Leave! </paper-button>
+                            <paper-button raised = "true" on-click="leavebiding"> Cancel </paper-button>
                         </template>
                     </section>
 

@@ -21,7 +21,7 @@ module.exports=function(app){
 
        if (page == 'giftregistry') {
            console.log("retrieve the gift page");
-           res.render('app/giftregistry.html', {screen_name: screenName});
+           res.render('app/giftregistry_original.html', {note: "Welcome! ", screen_name: screenName});
        }
        if (page == 'silentauction') {
            console.log("retrieve the auction page");
