@@ -20,12 +20,28 @@ module.exports=function(app){
        var page = req.params.page;
 
        if (page == 'giftregistry') {
+
            console.log("retrieve the gift page");
-           res.render('app/giftregistry_original.html', {note: "Welcome! ", screen_name: screenName});
+           var tx = req.query.tx? req.query.tx:null;
+
+           var note = 'The PayPal payment function will be ready by May 2rd!'
+
+           if (tx)
+               if (tx == 'success')
+                   note =  "Your gift has been received. We appreciate.";
+               else if (tx== "cancel")
+                   note = "Your transaction has been cancelled."
+               else
+                   note = "Your transaction has failed."
+
+           res.render('app/giftregistry_original.html', {note: note,
+               screen_name: screenName });
+
        }
+
        if (page == 'silentauction') {
            console.log("retrieve the auction page");
-           res.render('app/silentauction.html', {screen_name: screenName});
+           res.render('app/silentauction_original.html', {screen_name: screenName});
        }
 
        /*

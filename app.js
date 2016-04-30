@@ -169,6 +169,7 @@ function initializeDatabase(callback) {
 
 initializeDatabase(set_app);
 
+
 var retrievingAdmin = function () {
 
   if (process.env.admin) {
@@ -177,8 +178,10 @@ var retrievingAdmin = function () {
   return null;
 }
 
-app.locals.admin = retrievingAdmin();
 
+app.locals.admin = process.env.admin? process.env.admin.split(","):null;
+
+app.locals.paypal_token = process.env.paypal_token? process.env.paypal_token:null;
 
 // catch 404 and forward to error handler
 /*

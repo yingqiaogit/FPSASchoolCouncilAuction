@@ -31,6 +31,14 @@ var newRegister={
 
     window.addEventListener('WebComponentsReady', function () {
 
+        var hostname = window.location.hostname;
+        var localport = window.location.port?window.location.port:'';
+
+        var protocol=window.location.protocol? window.location.protocol:"http:";
+
+        app.returnURL=protocol + '//' + hostname+":"+localport+'/gifts/registersuccess';
+        app.cancelReturnURL=protocol + '//'+ hostname+":"+localport+'/gifts/registercancel';
+
         app.admin = false;
 
         var screenNameCom = document.querySelector('#screenName');
@@ -59,11 +67,24 @@ var newRegister={
              *   ]
              */
 
+            var target= 0;
+            var totalGiftValue = 0;
             giftList.forEach(function(gift, index){
                gift.index = index;
                gift.display = true;
                gift.registered = false;
+               target +=gift.value*gift.number;
+               if (gift.totalGiftValue) {
+                   totalGiftValue += gift.totalGiftValue;
+                   gift.remain=((gift.number - gift.totalGiftValue)/gift.value).toFixed(2);
+               }
+               else{
+                   gift.remain=gift.number;
+               }
             });
+
+            app.target = target;
+            app.totalGiftValue = totalGiftValue;
 
             console.log("titles:" + JSON.stringify(giftList));
 
@@ -118,56 +139,11 @@ var newRegister={
             app.giftList = JSON.parse(JSON.stringify(giftList));
         };
 
-        var registerAjax=document.querySelector('#registerCall');
+        app.concat=function(title,id){
 
-        app.giftRegisterClick= function(event){
-
-            console.log("The item is pressed");
-            var item = event.model.item;
-
-            //retrieve the item with the id
-            //and open the item page
-            //submit the contribution here
-
-            var id = item.id;
-
-            var registration = {
-                id: id,
-                pos: item.index,
-                register: app.register
-            }
-
-            //submit the registration
-            registerAjax.body = JSON.stringify(registration);
-
-            console.log(registerAjax.body);
-
-            registerAjax.generateRequest();
-
-            var pos = item.index
-
-            giftList[pos].display = true;
-            giftList[pos].registered = true;
-
-            //retrieve the item with the id
-            //and open the item page
-            app.giftList = JSON.parse(JSON.stringify(giftList));
-
-            app.register = JSON.parse(JSON.stringify(newRegister));
-        };
-
-        registerAjax.addEventListener('response', function(event){
-
-            var remain = event.detail.response.remain;
-
-            var pos = event.detail.response.pos;
-
-            giftList[pos].remain = remain;
-            //retrieve the item with the id
-            //and open the item page
-            app.giftList = JSON.parse(JSON.stringify(giftList));
-
-        });
+            var concatString = title + ' (' + id +')';
+            return concatString;
+        }
 
 
     });

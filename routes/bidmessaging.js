@@ -79,10 +79,12 @@ var leaveRoom = function (client){
     }
 };
 
-var statusChangeNotification = function(room){
+var statusChangeNotification = function(room,status){
 
+    rooms[room].status = status;
     io.sockets.in(room).emit('statusupdate',rooms[room]);
     console.log("status update as" + JSON.stringify(rooms[room]));
+    rooms[room].status = "Init";
 };
 
 module.exports= function(app){
@@ -107,6 +109,7 @@ module.exports= function(app){
             if (!rooms[room]) {
                 rooms[room] = {
                     queue: [],
+                    status: "Init",
                     lastbid: {
                         price: null,
                         time: null
@@ -117,7 +120,7 @@ module.exports= function(app){
                 itemDB.get(room, {revs_info: true}, function (err, body) {
                     if (!err) {
                         if (!body.bids) {
-                            lastbid.price = Number(body.doc.initialprice);
+                            lastbid.price = Number(body.doc.currentprice);
                             lastbid.formatedtime = body.doc.formatedtime;
                         } else {
                             lastbid= body.bids[body.bids.length-1];
@@ -143,7 +146,7 @@ module.exports= function(app){
             rooms[room].queue.push(clientSocket.id);
 
             //update the status to the room
-            statusChangeNotification(room);
+            statusChangeNotification(room,"BidMemberChange");
 
         });
 
@@ -162,7 +165,7 @@ module.exports= function(app){
             clientSocket.disconnect();
 
             if (statusUpdate)
-                statusChangeNotification(room);
+                statusChangeNotification(room,"RoomMemberChange");
         });
 
         //for client leaving the room with message
@@ -176,12 +179,13 @@ module.exports= function(app){
         //for client leaving the biding queue with message
         clientSocket.on('leavebid', function(bid){
 
-            console.log('leave biding queue from ' + clientSocket.id);
+            console.log('leave biding queue from ' + clientSocket.id + "with bid" + JSON.stringify(bid));
 
             leaveQueue(clientSocket);
 
             var room = clients[clientSocket.id];
 
+            rooms[room].status = "BidMemberChange";
             //a client may leave with a bid
             if (bid)
                 //store the biding information in the db then
@@ -209,9 +213,9 @@ module.exports= function(app){
 
                 rooms[room].lastbid.price = bid.price;
                 rooms[room].lastbid.time = bid.formatedtime;
+                rooms[room].status="PriceChange";
             }
-
-            statusChangeNotification(room);
+            statusChangeNotification(room, rooms[room].status);
         });
     });
 };

@@ -286,12 +286,18 @@ var newItem = {
                 if (app.selected == null) {
                    bidding_price_queue.push(bid);
                }else {
-                    if (bid.time && (bid.time == bidInfoGrid.data.source[bidInfoGrid.data.source.length - 1].time))
+                    if ((bidInfoGrid.data.source.length > 0) && bid.time && (bid.time == bidInfoGrid.data.source[bidInfoGrid.data.source.length - 1].time))
+                        return;
+
+                    if (status.status != "PriceChange")
                         return;
 
                     var selected = JSON.parse(JSON.stringify(app.selected));
 
                     selected.currentprice = bid.price;
+
+                    if (!selected.bids)
+                        selected.bids=[];
 
                     selected.bids.push(bid);
 
@@ -354,13 +360,18 @@ var newItem = {
                 return;
             }
 
-            var bids = selected.bids;
+            var bids;
+
+            if (selected.bids)
+                bids = selected.bids;
+            else
+                bids = [];
 
             if (!bidding_price_queue) {
                 //find the first price not in bids
                 var start = -1;
 
-                if (bids)
+                if (bids.length>0)
                     bidding_price_queue.forEach(function(price, index){
                         if (price.time == bids[bids.length-1].formatedtime){
                             start = index;
@@ -454,7 +465,7 @@ var newItem = {
 
             socket.on('statusupdate', function(status){
 
-                if (isBiddingAt('init'))
+                if (isBiddingAt('init') && (status.status != "BidMemberChange" || status.status != "PriceChange" ))
                     return;
 
                 var myid = socket.io.engine.id;
@@ -532,7 +543,8 @@ var newItem = {
             var bid_doc={
                 id:app.selected.id,
                 price:app.bidingForm.price,
-                email:app.bidingForm.email
+                email:app.bidingForm.email,
+                name:app.bidingForm.name
             };
 
             leaveBidding(bid_doc);

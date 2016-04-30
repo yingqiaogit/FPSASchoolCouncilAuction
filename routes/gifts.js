@@ -9,6 +9,7 @@ module.exports=function(app){
 
     var gifts_db = app.locals.dbs.gifts.handler;
 
+    var request = require('request');
 
     var store_new_item = function(doc, next,res){
 
@@ -67,67 +68,129 @@ module.exports=function(app){
        //returns the _id and titles
         var opt = req.params.operation;
 
-        var screenName = (req.session && req.session.screen_name)? req.session.screen_name:null;
-
         if (opt == "list")
             retrieve_items(res);
 
         if (opt == 'registersuccess'){
-            console.log("transaction success!");
+            console.log("register success");
 
-            res.render('app/giftregistry_original.html', {note: "Your gift has been received. We appreciate!",
-                                                          screen_name: screenName });
+            //process the pdf message
+            var tx = req.query.tx;
+
+            var form = {
+                cmd: "_notify-synch",
+                tx: tx,
+                at: app.locals.paypal_token
+            }
+
+            request.post(
+                'https://www.sandbox.paypal.com/cgi-bin/webscr',
+                { form: form },
+                function (error, response, body) {
+                    if (!error && response.statusCode == 200 && body.indexOf("SUCCESS")==0) {
+                        console.log(body)
+                         //retrieve information from body
+                        var txInfo = getTxInfo(body);
+                        registerFunc(txInfo.key, txInfo.register);
+                        res.redirect('/home/giftregistry?tx=success');
+                    }else
+                        res.redirect('home/giftregistry?tx=failure');
+
+                }
+            );
         }
 
         if (opt == 'registercancel'){
-            console.log("transaction cancelled!");
-
-            res.render('app/giftregistry_original.html', {note: "Your transaction has been cancelled.",
-                                                          screen_name: screenName });
-
+            console.log("register cancel");
+            res.redirect('/home/giftregistry?tx=cancel');
         }
 
     });
 
+    var getTxInfo= function(orgTx){
 
-    app.post('/gifts/register', function(req,res){
-        //bid information is contained in the request body
-        var register_doc = JSON.parse(Object.keys(req.body)[0]);
-        //retrieve the item from the db
-        console.log("register item as " + JSON.stringify(register_doc));
-        var key = register_doc.id;
-        var register = register_doc.register;
-        var pos = register_doc.pos;
+        var txInfo={
+            key: null,
+            register: {}
+        };
 
-        //push the bid into bids
+        var searchwords= ["txn_id","item_name", "mc_gross", "payer_email", "mc_fee", "payment_date"];
+
+        var start;
+        var stop;
+        var expected;
+
+        searchwords.forEach(function(word){
+           start = orgTx.indexOf(word);
+           stop = orgTx.indexOf('\n',start);
+
+           if (start>=0 && stop>=0) {
+               expected = orgTx.substring(start, stop).split('=')[1];
+               txInfo.register[word]=expected.replace(/\+/g,' ').replace(/%40/g,'@').replace(/%28/g,'(').replace(/%29/g,')').replace(/%3A/g,':').replace(/%2C/g,',');
+           }
+        });
+
+        start = txInfo.register.item_name.indexOf('(');
+        stop = txInfo.register.item_name.indexOf(')');
+
+        txInfo.key=txInfo.register.item_name.substring(start+1,stop);
+
+        delete txInfo.register.item_name;
+
+        console.log("txInfo " + JSON.stringify(txInfo));
+
+        return txInfo;
+    };
+
+    var registerFunc = function(key,register){
+
+        /*
+         "register":{
+             "txn_id":"9WC39488S2484832S",
+             "mc_gross":"45.00",
+             "payer_email":"fpsascfundraising-test-buyer@gmail.com",
+             "mc_fee":"1.61",
+             "payment_date":"18:13:27 Apr 25, 2016 PDT"
+         }
+        */
+
         gifts_db.get(key, {revs_info:true}, function(err,body){
             if (!err){
                 //return the found list of the doc
                 console.log('body as' + JSON.stringify(body));
 
-                if (!body.registers)
-                    body.registers=[];
+                if (!body.registers) {
+                    body.registers = [];
+                    body.txs=[];
+                }
+
+                //search if the transaction is duplicated:
+                if (body.txs.indexOf(register.txn_id) >=0)
+                    return;
+                else
+                    body.txs.push(register.txn_id);
 
                 body.registers.push(register);
 
                 //change the amount of remains
-                var remain = Number(body.doc.remain) - Number(register.amount);
-                body.doc.remain = remain;
+
+                if (body.doc.totalGiftValue)
+                    body.doc.totalGiftValue = Number(body.doc.totalGiftValue) + Number(register.mc_gross) - Number(register.mc_fee);
+                else
+                    body.doc.totalGiftValue = Number(register.mc_gross) - Number(register.mc_fee);
 
                 //store the document back to the server
                 gifts_db.insert(body, function(err,body){
-                  if(!err)
-                      res.status(200).send({remain:remain,
-                                            pos: pos});
-                  else
-                      res.status(404).send({status: err});
+                    if(!err)
+                        console.log("write success");
+                    else
+                        console.log("write failure");
                 });
 
             }else {
-                res.status(404).send({status: err});
+                console.log("error");
             }
         } );
-
-    });
+    };
 
 }
