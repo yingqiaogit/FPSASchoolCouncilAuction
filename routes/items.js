@@ -68,6 +68,7 @@ module.exports=function(app){
                         element.title = item.title;
                         element.id = row.key;
                         element.primary_url = item.primary_url;
+                        element.description = item.description;
 
                         if (req.session && req.session.isAdmin)
                             element.status = item.status;
@@ -115,7 +116,7 @@ module.exports=function(app){
 
                     if (statusAllowed.indexOf(item.status)>=0)
                     {
-                        if (item.sponsor)
+                        if (item.sponsor && Object.keys(item.sponsor).length)
                            sponsors.push(item.sponsor);
                     }
                 });

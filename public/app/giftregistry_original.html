@@ -93,13 +93,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     <section data-route="home" animateInitialSelection="true" id="home">
                         <div class="subject"><%= note %><span id="screenName" class="subject"><%= screen_name %></span></div>
-                            <div class="subject">Our target is $<span>{{target}}</span> and we have received $<span>{{totalGiftValue}}</span>.
-                        You may click a gift in the following list to make your contribution. </div>
-                        <div class="ratinginfo">Note:
-                        <div class="infolist"> 1) the colour/fabric and style is not exactly as shown </div>
-                        <div class="infolist"> 2) if you want to have a donation receipt of your contribution for income tax purpose, please write a check to the school instead.
-                                                 According to OCDSB, contribution paid through PayPal is not eligible for tax reduction. </div>
 
+                        <paper-material elevation="1">
+                            <div class="subject">Note: </div>
+                            <p class="infolist"> 1) The colour/fabric and style is not exactly as shown </p>
+                            <p class="infolist"> 2) The items are listed by their priorities in this fundraising </p>
+                            <p class="infolist"> 3) The PayPal account for this event is: fpsascfundraising@gmail.com. Transactions
+                                made via PayPal for this event will appear on your statement as: FPSASCFUND. All transactions are monitored and recorded.
+                            </p>
+                            <p class="infolist"> 4) Contributions paid through PayPal are not eligible for a tax receipt. If you wish to receive a receipt, your donation must be made by cheque, payable to "Fisher Park / Summit Alternative School".
+                                You will need to fill out <a href="../taxform-libraryreboot.pdf" target="_blank"> a donation form</a> and submit it with your contribution.
+                                and submit it with your contribution.
+                            </p>
+                        </paper-material>
+
+                        <div class="subject">Our target is $<span style="color:red">{{target}}</span> and we have received $<span style="color:green">{{totalGiftValue}}</span>.</div>
+                        <div class="subject">    You may click a gift in the following list to make your contribution. </div>
                         <template is="dom-repeat" items="{{giftList}}">
 
                             <div class="cards">
@@ -114,7 +123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                  <template is="dom-if" if="{{!item.display}}">
                                             <register-item register="{{item.register}}" gift="{{item}}" >
                                             </register-item>
-                                            <paper-button disabled="true">
+                                            <paper-button>
                                                 <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
                                                     <input type="hidden" name="cmd" value="_s-xclick">
                                                     <input type="hidden" name="hosted_button_id" value="M68PNEHHWMNUJ">

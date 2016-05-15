@@ -164,8 +164,9 @@ module.exports= function(app){
 
             clientSocket.disconnect();
 
-            if (statusUpdate)
-                statusChangeNotification(room,"RoomMemberChange");
+            if (statusUpdate && rooms[room]) {
+                statusChangeNotification(room, "BidMemberChange");
+            }
         });
 
         //for client leaving the room with message
@@ -181,11 +182,9 @@ module.exports= function(app){
 
             console.log('leave biding queue from ' + clientSocket.id + "with bid" + JSON.stringify(bid));
 
-            leaveQueue(clientSocket);
-
             var room = clients[clientSocket.id];
 
-            rooms[room].status = "BidMemberChange";
+             var status = leaveQueue(clientSocket)?"BidMemberChange":rooms[room].status;
             //a client may leave with a bid
             if (bid)
                 //store the biding information in the db then
@@ -213,9 +212,9 @@ module.exports= function(app){
 
                 rooms[room].lastbid.price = bid.price;
                 rooms[room].lastbid.time = bid.formatedtime;
-                rooms[room].status="PriceChange";
+                status="PriceChange";
             }
-            statusChangeNotification(room, rooms[room].status);
+            statusChangeNotification(room, status);
         });
     });
 };

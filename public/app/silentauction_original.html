@@ -97,7 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div class="subject"> Welcome! <span id="screenName" class = "subject"><%= screen_name %></span> You may click an item in the following list to make your bid or add your item. </div>
 
                         <div class = "cards">
-                        <paper-card heading="Donation" style="width:250px; height:450px;" elevation = 5 animatedShadow="true" >
+                        <paper-card heading="Donation" style="width:250px; height:465px;" elevation = 5 animatedShadow="true" >
                             <iron-image style="width:250px; height:150px;" src='../images/community.jpg' sizing="contain">
                             </iron-image>
 
@@ -117,20 +117,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         <template is="dom-repeat" items="{{listedItems}}">
                                 <div class = "cards" >
-                                   <paper-card heading="{{item.title}}"  style="width:250px; height:450px;" elevation = 5 animatedShadow="true" >
+                                   <paper-card heading="{{item.title}}"  style="width:250px; height:465px;" elevation = 5 animatedShadow="true" >
                                         <iron-image src="{{item.primary_url}}" style="width:250px; height:150px;" sizing="contain">
                                         </iron-image>
 
-                                        <div class="card-content">
-                                            <p> worth $<span>{{item.facevalue}}</span></p>
-                                            <p> now $<span>{{item.currentprice}}</span></p>
+                                        <div class="card-content" style="text-align: justify">
+                                            <span>{{getShort(item.description)}}</span>
+                                            <p> Worth $<span style="font-weight: bold">{{item.facevalue}}</span>
+                                            Now $<span style ="font-weight:bold">{{item.currentprice}}</span></p>
                                             <template is="dom-if" if="{{hasStatus(item.status)}}">
                                                 <p class="subject">{{item.status}}</p>
                                             </template>
-                                            <template is="dom-if" if="{{!hasStatus(item.status)}}">
-                                                <p class="subject">    </p>
-                                            </template>
-
                                         </div>
 
                                         <div class="card-actions">
@@ -213,7 +210,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         </template>
 
                         <template is="dom-if" if="{{isAt(itemstate,'bidding')}}">
-                            <div class="subject">It is your turn to make a bid for the item now</div>
+                            <div class="subject">It is your turn to bid now! You should submit your bid in
+                                <span style="color:green">{{time}}</span> seconds, otherwise, your biding will be cancelled.</div>
                             <bid-item biding-form = "{{bidingForm}}"></bid-item>
                             <paper-button raised = "true" on-click="submitbid"> Bid </paper-button>
                             <paper-button raised = "true" on-click="leavebiding">Cancel</paper-button>

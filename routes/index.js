@@ -24,7 +24,7 @@ module.exports=function(app){
            console.log("retrieve the gift page");
            var tx = req.query.tx? req.query.tx:null;
 
-           var note = 'The PayPal payment function will be ready by May 2rd!'
+           var note = 'Welcome!'
 
            if (tx)
                if (tx == 'success')
@@ -34,14 +34,14 @@ module.exports=function(app){
                else
                    note = "Your transaction has failed."
 
-           res.render('app/giftregistry_original.html', {note: note,
+           res.render('app/giftregistry.html', {note: note,
                screen_name: screenName });
 
        }
 
        if (page == 'silentauction') {
            console.log("retrieve the auction page");
-           res.render('app/silentauction_original.html', {screen_name: screenName});
+           res.render('app/silentauction.html', {screen_name: screenName});
        }
 
        /*

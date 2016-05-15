@@ -84,7 +84,7 @@ module.exports=function(app){
             }
 
             request.post(
-                'https://www.sandbox.paypal.com/cgi-bin/webscr',
+                'https://www.paypal.com/cgi-bin/webscr',
                 { form: form },
                 function (error, response, body) {
                     if (!error && response.statusCode == 200 && body.indexOf("SUCCESS")==0) {
@@ -114,7 +114,7 @@ module.exports=function(app){
             register: {}
         };
 
-        var searchwords= ["txn_id","item_name", "mc_gross", "payer_email", "mc_fee", "payment_date"];
+        var searchwords= ["txn_id","item_name", "mc_gross", "mc_fee", "payment_date"];
 
         var start;
         var stop;

@@ -11,6 +11,12 @@ var newRegister={
   contribution: 0
 };
 
+var itemComparator= function(a,b){
+
+    return a.priority - b.priority;
+};
+
+
 (function () {
     'use strict';
 
@@ -32,12 +38,12 @@ var newRegister={
     window.addEventListener('WebComponentsReady', function () {
 
         var hostname = window.location.hostname;
-        var localport = window.location.port?window.location.port:'';
+        var localport = window.location.port?':'+window.location.port:'';
 
         var protocol=window.location.protocol? window.location.protocol:"http:";
 
-        app.returnURL=protocol + '//' + hostname+":"+localport+'/gifts/registersuccess';
-        app.cancelReturnURL=protocol + '//'+ hostname+":"+localport+'/gifts/registercancel';
+        app.returnURL=protocol + '//' + hostname+localport+'/gifts/registersuccess';
+        app.cancelReturnURL=protocol + '//'+ hostname+localport+'/gifts/registercancel';
 
         app.admin = false;
 
@@ -69,6 +75,10 @@ var newRegister={
 
             var target= 0;
             var totalGiftValue = 0;
+
+            //order the giftList by the priority of fundraising
+            giftList.sort(itemComparator);
+
             giftList.forEach(function(gift, index){
                gift.index = index;
                gift.display = true;
@@ -76,7 +86,8 @@ var newRegister={
                target +=gift.value*gift.number;
                if (gift.totalGiftValue) {
                    totalGiftValue += gift.totalGiftValue;
-                   gift.remain=((gift.number - gift.totalGiftValue)/gift.value).toFixed(2);
+                   var remain = gift.number - gift.totalGiftValue/gift.value
+                   gift.remain=remain.toFixed(2);
                }
                else{
                    gift.remain=gift.number;
@@ -84,7 +95,7 @@ var newRegister={
             });
 
             app.target = target;
-            app.totalGiftValue = totalGiftValue;
+            app.totalGiftValue = totalGiftValue.toFixed(2);
 
             console.log("titles:" + JSON.stringify(giftList));
 

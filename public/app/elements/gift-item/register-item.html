@@ -64,7 +64,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             if (this.register.amount)
             {
-                this.register.contribution = +((this.register.amount*this.gift.value*(1 + 0.029) + 0.3).toFixed(2));
+                var amount = (this.gift.value*this.register.amount+0.30)/(1-0.029);
+                this.register.contribution = amount.toFixed(2);
                 this.contribution = this.register.contribution;
             }
 

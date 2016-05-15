@@ -8,9 +8,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 var newItem = {
-    sponsor: {
-
-    }
+    sponsor: {}
 };
 
 (function () {
@@ -77,11 +75,7 @@ var newItem = {
 
                 if (pages.selected != 'home')
                     goHome();
-            } else
-                if (categorySelect.selected == 1)
-                {
-                    pages.selected = "admin";
-                }
+            }
 
         });
 
@@ -342,6 +336,12 @@ var newItem = {
             retrieveItemAjax.generateRequest();
         }
 
+        app.getShort=function(description){
+
+            return (description.length > 125)? description.substring(0,120) + "..." : description;
+
+        }
+
         var bidInfoGrid;
 
         retrieveItemAjax.addEventListener('response', function(event){
@@ -455,6 +455,10 @@ var newItem = {
 
         });
 
+        //set the number of timeout
+        var timeouts = 6;
+        var interval;
+        var time;
         app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
@@ -484,6 +488,17 @@ var newItem = {
                     app.bidingForm = local_biding_form;
 
                     setBiddingState('bidding');
+                    //open the timer:
+                    time = 60;
+                    app.time = time;
+                    interval = window.setInterval(function(){
+                        time -= 10;
+                        app.time = time;
+                        timeouts--;
+                        if (timeouts ==0)
+                            leaveBidding(null);
+                    },10000);
+
                 }else {
                     //display the waiting queue
 
@@ -529,7 +544,12 @@ var newItem = {
                     socket.emit('leavebid', bid);
                 }
 
+                //clear the timer;
+                if (isBiddingAt('bidding'))
+                    window.clearInterval(interval);
+
                 setBiddingState('init');
+
             }else{
 
                 goHome();
