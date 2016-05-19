@@ -6,6 +6,10 @@
  * bids:
  */
 
+var bidComparator=function(aBid, bBid){
+    return aBid.price-bBid.price;
+};
+
 var writeBidToTable= function(itemDB, bid, key){
 
     console.log("bid item as " + JSON.stringify(bid) + "with key as " + key);
@@ -25,7 +29,16 @@ var writeBidToTable= function(itemDB, bid, key){
 
             body.bids.push(bid);
 
-            body.doc.currentprice = bid.price;
+            //current price is the lowest price at top #quantity
+            body.bids.sort(bidComparator);
+
+            if (!body.doc.quantity||body.doc.quantity == 1)
+                body.doc.currentprice = body.bids[body.bids.length-1].price;
+            else
+                if (body.bids.length >= body.doc.quantity){
+                    body.doc.currentprice = body.bids[body.bids.length-body.doc.quantity].price;
+                }
+
             //store the document back to the server
 
             //return the found list of the doc

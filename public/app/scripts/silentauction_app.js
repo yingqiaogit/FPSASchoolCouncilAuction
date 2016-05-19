@@ -11,6 +11,10 @@ var newItem = {
     sponsor: {}
 };
 
+var bidComparator = function(aBid, bBid){
+    return aBid.price- bBid.price;
+};
+
 (function () {
     'use strict';
 
@@ -79,6 +83,7 @@ var newItem = {
 
         });
 
+
         var newItemPageButton = document.querySelector('#newItemPageButton');
 
         newItemPageButton.addEventListener('click', function(event){
@@ -115,7 +120,7 @@ var newItem = {
             app.status = 'list';
 
             //scrollup
-            scrollHeadPanel[0].scrollToTop(true);
+            //scrollHeadPanel[0].scrollToTop(true);
 
         }
 
@@ -181,10 +186,9 @@ var newItem = {
             }
 
             //scrollup
-            scrollHeadPanel[0].scrollToTop(true);
+            //scrollHeadPanel[0].scrollToTop(true);
 
         };
-
 
         var listedItems;
 
@@ -244,18 +248,69 @@ var newItem = {
 
         });
 
-        var socket;
+        var socket = null;
 
-        var bidding_price_queue=[];
+        socket = io.connect({timeout:5000});
+
+        socket.on('welcome',function(){
+            console.log("connected!");
+        });
+
+        //processes statusupate message at init state, handles PriceChange only;
+        socket.on('statusupdate', function(status){
+            //if the item is not retrieved yet
+            //store the received price in a local queue;
+            if (status.status != "PriceChange")
+                return;
+
+            var bid = status.lastbid;
+
+            /*     lastbid:
+             *        {
+             *           price:
+             *           time:
+             *        }
+             */
+            console.log("received status update " + JSON.stringify(status));
+
+            if (app.selected == null) {
+                bidding_queue.push(bid);
+            }else {
+                var selected = JSON.parse(JSON.stringify(app.selected));
+                if (!selected.bids)
+                    selected.bids=[];
+
+                selected.bids.push(bid);
+
+                selected.bids.sort(bidComparator);
+
+                //if quantity is not defined
+                if (!selected.quantity || selected.quantity==1)
+                    selected.currentprice = selected.bids[selected.bids.length-1].price
+                else
+                if (selected.bids.length >= selected.quantity)
+                    selected.currentprice = selected.bids[selected.bids.length-selected.quantity].price;
+
+                app.selected = selected;
+
+                bidInfoGrid.data.source = app.selected.bids;
+
+                bidInfoGrid.columns[0].renderer = function (cell) {
+                    cell.element.innerHTML = cell.row.index;
+                }
+            }
+        });
+
+        var bidding_queue=[];
 
         var resetItemPage= function(){
 
             app.selected = null;
             app.itemstate='init';
-            bidding_price_queue=[];
+            bidding_queue=[];
         };
 
-         var openItemPage= function(id){
+        var openItemPage = function(id){
 
             resetItemPage();
 
@@ -263,47 +318,6 @@ var newItem = {
 
             socket.emit('joinroom', id);
 
-            socket.on('statusupdate', function(status){
-               //if the item is not retrieved yet
-               //store the received price in a local queue;
-                var bid = status.lastbid;
-
-
-                /*     lastbid:
-                 *        {
-                 *           price:
-                 *           time:
-                 *        }
-                 */
-                console.log("received status update " + JSON.stringify(status));
-
-                if (app.selected == null) {
-                   bidding_price_queue.push(bid);
-               }else {
-                    if ((bidInfoGrid.data.source.length > 0) && bid.time && (bid.time == bidInfoGrid.data.source[bidInfoGrid.data.source.length - 1].time))
-                        return;
-
-                    if (status.status != "PriceChange")
-                        return;
-
-                    var selected = JSON.parse(JSON.stringify(app.selected));
-
-                    selected.currentprice = bid.price;
-
-                    if (!selected.bids)
-                        selected.bids=[];
-
-                    selected.bids.push(bid);
-
-                    app.selected = selected;
-
-                    bidInfoGrid.data.source = app.selected.bids;
-
-                    bidInfoGrid.columns[0].renderer = function (cell) {
-                        cell.element.innerHTML = cell.row.index;
-                    }
-                }
-            });
 
             retrieveItem(id);
             setBiddingState('init');
@@ -334,12 +348,19 @@ var newItem = {
             retrieveItemAjax.url = '/items/found?id='+id;
 
             retrieveItemAjax.generateRequest();
-        }
+        };
 
         app.getShort=function(description){
 
-            return (description.length > 125)? description.substring(0,120) + "..." : description;
+            var display = description.length > 125? description.substring(0,120) + "..." :
+                           description + Array(125-description.length).join(' ');
+            return display;
 
+        };
+
+        app.hasQuantity=function(quantity){
+
+            return quantity && quantity > 1;
         }
 
         var bidInfoGrid;
@@ -348,14 +369,13 @@ var newItem = {
 
             var selected = event.detail.response.selected;
 
-            app.selected = selected;
-
             if (app.adminStatus && app.adminStatus == 'init')
                 return;
 
             bidInfoGrid = document.querySelector('#bidinfogrid');
 
             if (!selected.bids) {
+                app.selected = selected;
                 bidInfoGrid.data.source = [];
                 return;
             }
@@ -367,38 +387,37 @@ var newItem = {
             else
                 bids = [];
 
-            if (!bidding_price_queue) {
-                //find the first price not in bids
-                var start = -1;
+            var bidding_time_list = [];
 
-                if (bids.length>0)
-                    bidding_price_queue.forEach(function(price, index){
-                        if (price.time == bids[bids.length-1].formatedtime){
-                            start = index;
-                        }
+            bids.forEach(function(bid){
+               bidding_time_list.push(bid.time);
+            });
 
-                    });
-
-                //pop out the prices existing in bids from bidding_price_queue
-                var pos = 0;
-                while (pos<=start) {
-                    bidding_price_queue.pop();
-                    pos++;
-                }
-
-                //pop out the remaining prices into bids
-                while (bidding_price_queue.length > 0)
-                        bids.push(bidding_price_queue.pop());
-
-                app.selected.currentprice = bids[bids.length-1].price;
-
+            if (!bidding_queue)
+            {
+                bidding_queue.forEach(function(bidding){
+                        //add the prices in the queue to the bids list
+                        if (bidding_time_list.indexOf(bidding.time)<0)
+                            bids.push(bidding);
+                });
             }
 
             console.log("bids as " + JSON.stringify(bids));
 
+            bids.sort(bidComparator);
+
+            if (selected.bids.length)
+                if (!selected.quantity || selected.quantity==1)
+                    selected.currentprice = selected.bids[selected.bids.length-1].price;
+                else
+                    if (selected.bids.length >= selected.quantity)
+                        selected.currentprice = selected.bids[selected.bids.length-selected.quantity].price;
+
+            app.selected = selected;
+
             bidInfoGrid.data.source = bids;
 
-            bidInfoGrid.columns[0].renderer = function (cell) {
+            bidInfoGrid.columns[0].renderer = function(cell) {
                 cell.element.innerHTML = cell.row.index;
             }
         });
@@ -447,7 +466,7 @@ var newItem = {
 
             pages.selected = 'additempage';
 
-        }
+        };
 
         approveItemAjax.addEventListener('response',function(e){
 
@@ -456,66 +475,76 @@ var newItem = {
         });
 
         //set the number of timeout
-        var timeouts = 6;
-        var interval;
+        var timeouts;
+        var timer = null;
         var time;
+
+        //processing statusupdate message in the bidding state
+        socket.on('statusupdate', function(status){
+
+            if (isBiddingAt('init') && (status.status != "BidMemberChange" || status.status != "PriceChange" ))
+                return;
+
+            var myid = socket.io.engine.id;
+
+            console.log("status of the queue is "+ JSON.stringify(status));
+
+            console.log("my id is " + myid + " my index is " + status.queue.indexOf(myid));
+
+            if (status.queue[0] == myid) {
+
+                var local_biding_form = {
+                    price: Number(app.selected.currentprice) + Number(app.selected.increment),
+                    email: null
+                };
+
+                app.bidingForm = local_biding_form;
+
+                setBiddingState('bidding');
+                //open the timer:
+                time = 60;
+                app.time = time;
+                timeouts = 6;
+
+                var timeoutFunc = function(){
+
+                    if (!timer)
+                        return;
+                    time -= 10;
+                    app.time = time;
+                    timeouts--;
+                    console.log("timeout #" + timeouts);
+                    if (timeouts == 0 )
+                    {
+                        timer = null;
+                        leaveBidding(null);
+                    }else
+                        timer=window.setTimeout(timeoutFunc, 10000);
+                }
+                timer = window.setTimeout(timeoutFunc,10000);
+            }else {
+                //display the waiting queue
+
+                var waiting = [];
+
+                status.queue.forEach(function(id, index){
+                    if (id == myid)
+                        waiting.push(true);
+                    else
+                        waiting.push(false);
+                });
+
+                app.waitingqueue = waiting;
+                setBiddingState('waiting');
+
+            }
+        });
+
         app.biding = function(event){
             //connected to the socket at the server
             //display a server message on console
-
             socket.emit('joinbid', app.selected.id);
-
             setBiddingState('waiting');
-
-            socket.on('statusupdate', function(status){
-
-                if (isBiddingAt('init') && (status.status != "BidMemberChange" || status.status != "PriceChange" ))
-                    return;
-
-                var myid = socket.io.engine.id;
-
-                console.log("status of the queue is "+ JSON.stringify(status));
-
-                console.log("my id is " + myid + " my index is " + status.queue.indexOf(myid));
-
-                if (status.queue[0] == myid) {
-
-                    var local_biding_form = {
-                        price: Number(status.lastbid.price) + Number(app.selected.increment),
-                        email: null
-                    };
-
-                    app.bidingForm = local_biding_form;
-
-                    setBiddingState('bidding');
-                    //open the timer:
-                    time = 60;
-                    app.time = time;
-                    interval = window.setInterval(function(){
-                        time -= 10;
-                        app.time = time;
-                        timeouts--;
-                        if (timeouts ==0)
-                            leaveBidding(null);
-                    },10000);
-
-                }else {
-                    //display the waiting queue
-
-                    var waiting = [];
-
-                    status.queue.forEach(function(id, index){
-                        if (id == myid)
-                            waiting.push(true);
-                        else
-                            waiting.push(false);
-                    });
-
-                    app.waitingqueue = waiting;
-                    setBiddingState('waiting');
-
-                }
-            })
         };
 
         app.leavebiding = function(event){
@@ -543,28 +572,40 @@ var newItem = {
                 if (socket) {
                     socket.emit('leavebid', bid);
                 }
-
-                //clear the timer;
-                if (isBiddingAt('bidding'))
-                    window.clearInterval(interval);
+                if (timer) {
+                    window.clearTimeout(timer);
+                    console.log("timer cleared");
+                    timer = null;
+                }
 
                 setBiddingState('init');
 
             }else{
-
                 goHome();
             }
         };
+
+        var bidToaster;
 
         app.submitbid = function(event){
 
             var bid = {};
 
+            bidToaster = document.querySelector('#bidToaster');
+
+            if (!app.bidingForm.email || !app.bidingForm.phone)
+            {
+                app.bidToaster = "Contact phone number and email address are required";
+                bidToaster.show();
+                return;
+            }
+
             var bid_doc={
                 id:app.selected.id,
                 price:app.bidingForm.price,
                 email:app.bidingForm.email,
-                name:app.bidingForm.name
+                name:app.bidingForm.name,
+                phone:app.bidingForm.phone
             };
 
             leaveBidding(bid_doc);

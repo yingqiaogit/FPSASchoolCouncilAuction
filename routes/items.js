@@ -69,6 +69,7 @@ module.exports=function(app){
                         element.id = row.key;
                         element.primary_url = item.primary_url;
                         element.description = item.description;
+                        element.quantity = item.quantity;
 
                         if (req.session && req.session.isAdmin)
                             element.status = item.status;
@@ -94,6 +95,7 @@ module.exports=function(app){
        retrieve_items(req,res);
     });
 
+    //retrieve all of the sponsors from the doc
     app.get('/items/sponsors', function(req,res){
 
         var statusAllowed = ['Approved'];
@@ -116,7 +118,8 @@ module.exports=function(app){
 
                     if (statusAllowed.indexOf(item.status)>=0)
                     {
-                        if (item.sponsor && Object.keys(item.sponsor).length)
+                        if (item.sponsor && Object.keys(item.sponsor).length
+                            && item.sponsor.name && item.sponsor.website_url && item.sponsor.logo_url)
                            sponsors.push(item.sponsor);
                     }
                 });
@@ -145,6 +148,8 @@ module.exports=function(app){
 
                 var selected = {};
                 selected = extend(body.doc,{id: body._id});
+                if (!selected.quantity)
+                    selected.quantity = 1;
 
                 if (body.bids) {
                     var bids = [];
@@ -197,6 +202,9 @@ module.exports=function(app){
 
     });
 
+    var bidComparator = function(aBid, bBid){
+        return aBid.price-bBid.price;
+    }
 
     app.post('/items/bid', function(req,res){
         //bid information is contained in the request body
@@ -220,7 +228,7 @@ module.exports=function(app){
                     body.bids=[];
 
                 body.bids.push(bid);
-                body.doc.currentprice = bid.price;
+
                 //store the document back to the server
 
                 item_db.insert(body, function(err,body){

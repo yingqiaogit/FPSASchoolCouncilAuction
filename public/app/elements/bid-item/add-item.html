@@ -38,13 +38,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </p>
 
       <br>
-      <p class="paper-font-body2">The face value of the item (an integer number is preferred):
+        <p class="paper-font-body2">Quantity:
+          <paper-textarea id="descriptionInput" value="{{newItem.quantity}}" ></paper-textarea>
+      </p>
 
-        <paper-input type="number" label ='face value'
+      <br>
+      <p class="paper-font-body2">The face value of an item (an integer number is preferred):
+
+          <paper-input type="number" label ='face value'
                   style="width:100px" value="{{newItem.facevalue}}" >
-            <span prefix>$</span>
-        </paper-input>
-
+              <span prefix>$</span>
+          </paper-input>
       </p>
 
       <br>
@@ -105,8 +109,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Object,
             notify: true
           }
-
         }
+
       });
     })();
   </script>

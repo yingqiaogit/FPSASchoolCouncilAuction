@@ -97,47 +97,26 @@ module.exports= function(app){
 
     io.on('connection', function(clientSocket){
 
-       clientSocket.on('joinroom', function(room){
+       clientSocket.on('joinroom', function(room) {
 
-            console.log("join in the room " + room);
+           console.log("join in the room " + room);
 
-            clientSocket.join(room);
+           clientSocket.join(room);
 
-            clients[clientSocket.id] = room;
+           clients[clientSocket.id] = room;
 
-            //open a room if there is no room
-            if (!rooms[room]) {
-                rooms[room] = {
-                    queue: [],
-                    status: "Init",
-                    lastbid: {
-                        price: null,
-                        time: null
-                    }
-                };
-
-                var lastbid = {};
-                itemDB.get(room, {revs_info: true}, function (err, body) {
-                    if (!err) {
-                        if (!body.bids) {
-                            lastbid.price = Number(body.doc.currentprice);
-                            lastbid.formatedtime = body.doc.formatedtime;
-                        } else {
-                            lastbid= body.bids[body.bids.length-1];
-                        }
-
-                        rooms[room].lastbid.price = lastbid.price;
-                        rooms[room].lastbid.time = lastbid.formatedtime;
-
-                        // send a status update message to the newcommer
-                        clientSocket.emit('statusupdate', rooms[room]);
-                    }
-                    else {
-                        console.log("error in db");
-                    }
-                });
-            } else
-                clientSocket.emit('statusupdate', rooms[room]);
+           //open a room if there is no room
+           if (!rooms[room])
+               rooms[room] = {
+                   queue: [],
+                   status: "Init",
+                   lastbid: {
+                       price: null,
+                       time: null
+                   }
+               };
+           console.log("send welcome");
+           clientSocket.emit("welcome");
         });
 
         clientSocket.on('joinbid', function(room) {
