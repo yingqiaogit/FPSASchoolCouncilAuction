@@ -94,7 +94,8 @@ var itemComparator= function(a,b){
                }
             });
 
-            app.target = target;
+
+            app.target = target.toFixed(2);
             app.totalGiftValue = totalGiftValue.toFixed(2);
 
             console.log("titles:" + JSON.stringify(giftList));

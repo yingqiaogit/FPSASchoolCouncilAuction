@@ -200,6 +200,9 @@ var bidComparator = function(aBid, bBid){
 
             console.log("titles:" + JSON.stringify(listedItems));
             app.listedItems = listedItems;
+
+            app.isAdmin= event.detail.response.isAdmin;
+            app.isBidding = event.detail.response.isBidding;
         });
 
         var openItemList=function(){
@@ -365,12 +368,23 @@ var bidComparator = function(aBid, bBid){
 
         var bidInfoGrid;
 
+        app.getOperation = function(){
+
+            if (app.isBidding)
+                return 'Bid';
+            else
+                return 'View';
+        }
+
         retrieveItemAjax.addEventListener('response', function(event){
 
             var selected = event.detail.response.selected;
 
             if (app.adminStatus && app.adminStatus == 'init')
                 return;
+
+            app.isAdmin = event.detail.response.isAdmin;
+            app.isBidding = event.detail.response.isBidding;
 
             bidInfoGrid = document.querySelector('#bidinfogrid');
 

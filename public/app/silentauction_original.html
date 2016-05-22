@@ -94,6 +94,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <iron-pages attr-for-selected="data-route" selected="home">
 
                     <section data-route="home" animateInitialSelection="true" id="home">
+                        <paper-material elevation="1">
+                            <p class="infolist"> The online Silent Auction bidding closes at 6 pm on May 24, but these items will still be available for viewing.
+                                Be sure to join us for the #LibraryReboot at the school on May 25, from 6:30 – 8:30 pm,
+                                for the best chance of securing your item!
+                            </p>
+                            <p class="infolist">
+                                In addition to the auction, there will be student performances,
+                                food and drinks and the opportunity to see first-hand the vision for the revitalized school library!
+                            </p>
+                            <p class="infolist">
+                                When there are multiple quantities of the same item, bids are understood to be for one item only.
+                            </p>
+                        </paper-material>
+
                         <div class="subject"> Welcome! <span id="screenName" class = "subject"><%= screen_name %></span> You may click an item in the following list to make your bid or add your item. </div>
 
                         <div class = "cards">
@@ -128,14 +142,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                             <template is="dom-if" if="{{hasQuantity(item.quantity)}}">
                                                 <p>Quantity <span style ="font-weight:bold">{{item.quantity}}</span></p>
                                             </template>
-                                            <template is="dom-if" if="{{hasStatus(item.status)}}">
+                                            <template is="dom-if" if="{{isAdmin}}">
                                                 <p class="subject">{{item.status}}</p>
                                             </template>
                                         </div>
 
                                         <div class="card-actions">
-                                            <paper-button raised on-click = "itemSelectorClick">Bid</paper-button>
-                                            <template is="dom-if" if="{{hasStatus(item.status)}}">
+                                            <paper-button raised on-click = "itemSelectorClick">{{getOperation()}}</paper-button>
+
+                                            <template is="dom-if" if="{{isAdmin}}">
                                                 <paper-button raised on-click = "itemAdminClick">Admin</paper-button>
                                             </template>
                                         </div>
@@ -198,18 +213,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <v-grid selection-mode="disabled" id="bidinfogrid">
                                 <table>
                                         <!-- Define the columns -->
-                                        <col name="rank" header-text="Rank" width="10">
-                                        <col name="price" header-text="Price">
-                                        <col name="time" header-text="Biding Time">
+                                    <col name="rank" header-text="Rank" width="10">
+                                    <col name="price" header-text="Price">
+                                    <col name="time" header-text="Bidding Time">
+                                    <template is="dom-if" if="{{isAdmin}}">
+                                        <col name="name" header-text="Name">
+                                        <col name="phone" header-text="Phone number">
+                                        <col name="email" header-text="Email address">
+                                    </template>
                                 </table>
                             </v-grid>
-
                         </paper-material>
 
                         <template is="dom-if" if="{{isAt(itemstate,'init')}}">
-                            <paper-button raised = "true" on-click="biding"> Bid </paper-button>
-                            <paper-button raised = "true" on-click="leavebiding">Cancel</paper-button>
+                            <template is="dom-if" if="{{isBidding}}">
+                                <paper-button raised = "true" on-click="biding"> Bid </paper-button>
+                            </template>
 
+                            <paper-button raised = "true" on-click="leavebiding">Back</paper-button>
                         </template>
 
                         <template is="dom-if" if="{{isAt(itemstate,'bidding')}}">
@@ -256,17 +277,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <div calss="ratinginfo">{{selectedDescription}}</div>
                         </paper-material>
 
-                        <paper-material>
-                            <v-grid>
-                                <table>
-                                    <!-- Define the columns -->
-                                    <col name="rank" header-text="Rank" width="10">
-                                       <col name="price" header-text="Title">
-                                            <col name="time" header-text="Location">
-
-                                </table>
-                            </v-grid>
-                        </paper-material>
                     </section>
 
                     <iron-ajax method="POST" id="addItemCall" url="/items/submit" contentType="application/json" handle-as="json" debounce-duration="300">

@@ -2,6 +2,13 @@
  * Created by a on 10/29/2015.
  */
 
+var isBidding=function(){
+
+    //if the time is passed May,24th, 6:00pm EST,
+    //
+    return new Date().getTime() > new Date(2016, 4, 24, 18, 0,0,0).getTime() ? false:true;
+};
+
 module.exports=function(app){
 
     var async = require('async');
@@ -76,11 +83,12 @@ module.exports=function(app){
 
                         element.facevalue = item.facevalue;
                         element.currentprice = item.currentprice;
+                        //if not admin, send price and time only
                         console.log('element as ' + JSON.stringify(element));
                         titles.push(element);
                     }
                 });
-                res.json({isAdmin: isAdmin,titles:titles});
+                res.json({isAdmin: isAdmin,isBidding: isBidding(), titles:titles});
             }
             else
                 res.status(500).send({status:'error'});
@@ -142,6 +150,8 @@ module.exports=function(app){
 
         console.log("received id " + doc_id);
 
+        var isAdmin = req.session && req.session.isAdmin ? true:false;
+
         item_db.get(doc_id, {revs_info:true}, function(err,body){
             if (!err){
                 //return the found list of the doc
@@ -154,16 +164,21 @@ module.exports=function(app){
                 if (body.bids) {
                     var bids = [];
                     body.bids.forEach(function (current) {
-                        var bid = {
+                        var bid= {
                             price: current.price,
                             time: current.formatedtime
+                        }
+                        if (isAdmin){
+                            bid.name = current.name;
+                            bid.email = current.email;
+                            bid.phone = current.phone;
                         }
                         bids.push(bid);
                     });
                     selected.bids= bids;
                 }
                 console.log("selected " + JSON.stringify(selected));
-                res.json({selected: selected});
+                res.json({isAdmin: isAdmin, isBidding: isBidding(), selected: selected});
             }else {
                 res.status(404).send({status: err});
             }
