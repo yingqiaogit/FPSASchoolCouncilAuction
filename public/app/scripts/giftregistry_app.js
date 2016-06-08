@@ -57,9 +57,12 @@ var itemComparator= function(a,b){
 
         var retrieveListAjax = document.querySelector('#retrieveListCall');
 
+        var registerEnabled = true;
+
         retrieveListAjax.addEventListener('response',function(event){
 
             giftList = event.detail.response.gifts;
+            registerEnabled = event.detail.response.enabled;
             /*
              *   gifts= [
              *   {
@@ -113,6 +116,9 @@ var itemComparator= function(a,b){
         var selected;
 
         app.giftSelectorClick= function(event){
+
+            if (!registerEnabled)
+                return;
 
             console.log("The item is pressed");
 

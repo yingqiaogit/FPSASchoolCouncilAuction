@@ -6,7 +6,7 @@ var isBidding=function(){
 
     //if the time is passed May,24th, 6:00pm EST,
     //
-    return new Date().getTime() > new Date(2016, 4, 24, 18, 0,0,0).getTime() ? false:true;
+    return new Date().getTime() > new Date(2016, 5, 8, 22, 0,0,0).getTime() ? false:true;
 };
 
 module.exports=function(app){

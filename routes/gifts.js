@@ -1,7 +1,12 @@
 /**
  * Created by a on 10/29/2015.
  */
+var isEnabled=function(){
 
+    //if the time is passed May,24th, 6:00pm EST,
+    //
+    return new Date().getTime() > new Date(2016, 5, 8, 22, 0,0,0).getTime() ? false:true;
+};
 module.exports=function(app){
 
     var async = require('async');
@@ -55,7 +60,7 @@ module.exports=function(app){
                     console.log('gift doc as ' + JSON.stringify(gift));
                     gifts.push(gift);
                 });
-                res.json({gifts:gifts});
+                res.json({gifts:gifts, enabled:isEnabled()});
             }
             else
                 res.status(500).send({status:'error'});
